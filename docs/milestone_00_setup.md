@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-11  
 **Branch:** milestone/00-project-setup  
-**Status:** In progress
+**Status:** Complete
 
 ---
 
@@ -16,10 +16,10 @@
 - [x] CHANGELOG.md created
 - [x] docs/milestone_00_setup.md created (this file)
 - [x] Copyright headers added to lib/main.dart and test/widget_test.dart
-- [ ] Git repository initialised on `main` branch
-- [ ] milestone/00-project-setup branch created
-- [ ] flutter analyze — zero issues confirmed
-- [ ] flutter test — all pass confirmed
+- [x] Git repository initialised on `main` branch
+- [x] milestone/00-project-setup branch created
+- [x] flutter analyze — zero issues confirmed
+- [x] flutter test — all pass confirmed (1/1)
 
 ---
 
