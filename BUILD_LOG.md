@@ -89,7 +89,17 @@ Try `flutter pub outdated` for more information.
 
 ---
 
+### flutter run — manual verification (2026-06-11)
+
+```
+flutter run -d windows   → PASS — standard Flutter counter scaffold displayed
+flutter run -d chrome    → PASS — standard Flutter counter scaffold displayed
+```
+
+**Verified by:** FullStackShack
+
+---
+
 ### Notes
 
-- 4 packages report newer versions incompatible with current constraints — these are cosmetic warnings from the dependency resolver, not errors. They do not affect the build. Will evaluate for upgrade in a future milestone.
-- `flutter run -d chrome` and `flutter run -d <android>` are interactive commands that require a running device/emulator; they must be verified manually by the user.
+- 4 packages report newer versions incompatible with current constraints — cosmetic dependency resolver warnings, not errors. Will evaluate for upgrade in a future milestone.

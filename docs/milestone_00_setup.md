@@ -20,6 +20,8 @@
 - [x] milestone/00-project-setup branch created
 - [x] flutter analyze — zero issues confirmed
 - [x] flutter test — all pass confirmed (1/1)
+- [x] flutter run -d windows — verified by user (standard counter scaffold displayed)
+- [x] flutter run -d chrome — verified by user (standard counter scaffold displayed)
 
 ---
 
