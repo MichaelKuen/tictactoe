@@ -159,4 +159,39 @@ void main() {
       expect(b.isTerminal, isFalse);
     });
   });
+
+  group('Board.winningLine', () {
+    test('null on empty board', () {
+      expect(Board.empty().winningLine, isNull);
+    });
+
+    test('null mid-game with no winner', () {
+      final b = Board.empty().move(0, Player.x).move(4, Player.o);
+      expect(b.winningLine, isNull);
+    });
+
+    test('returns [0,1,2] when top row wins', () {
+      final b = Board.empty()
+          .move(0, Player.x)
+          .move(1, Player.x)
+          .move(2, Player.x);
+      expect(b.winningLine, equals([0, 1, 2]));
+    });
+
+    test('returns [0,4,8] for main diagonal', () {
+      final b = Board.empty()
+          .move(0, Player.x)
+          .move(4, Player.x)
+          .move(8, Player.x);
+      expect(b.winningLine, equals([0, 4, 8]));
+    });
+
+    test('null on a draw board', () {
+      final b = Board.empty()
+          .move(0, Player.x).move(1, Player.o).move(2, Player.x)
+          .move(3, Player.o).move(4, Player.o).move(5, Player.x)
+          .move(6, Player.x).move(7, Player.x).move(8, Player.o);
+      expect(b.winningLine, isNull);
+    });
+  });
 }

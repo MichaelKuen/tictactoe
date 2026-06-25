@@ -7,8 +7,14 @@ import 'cell_widget.dart';
 class BoardWidget extends StatelessWidget {
   final Board board;
   final void Function(int index)? onCellTap;
+  final List<int>? winningLine;
 
-  const BoardWidget({super.key, required this.board, this.onCellTap});
+  const BoardWidget({
+    super.key,
+    required this.board,
+    this.onCellTap,
+    this.winningLine,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +29,7 @@ class BoardWidget extends StatelessWidget {
         itemBuilder: (_, index) => CellWidget(
           key: ValueKey('cell_$index'),
           player: board[index],
+          highlighted: winningLine?.contains(index) ?? false,
           onTap: onCellTap != null ? () => onCellTap!(index) : null,
         ),
       ),

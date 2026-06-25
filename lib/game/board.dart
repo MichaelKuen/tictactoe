@@ -36,6 +36,14 @@ class Board {
     return null;
   }
 
+  List<int>? get winningLine {
+    for (final line in _winLines) {
+      final a = cells[line[0]];
+      if (a != null && a == cells[line[1]] && a == cells[line[2]]) return line;
+    }
+    return null;
+  }
+
   bool get isDraw => winner == null && cells.every((c) => c != null);
 
   bool get isTerminal => winner != null || isDraw;
