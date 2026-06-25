@@ -45,8 +45,8 @@ The `.dart_tool/` directory is generated — do NOT add headers there.
 
 | # | Branch                        | Goal                                 | Status  |
 |---|-------------------------------|--------------------------------------|---------|
-| 00 | milestone/00-project-setup   | Scaffold, docs, copyright, git init  | 🔄 In progress |
-| 01 | milestone/01-game-logic       | Core game state & logic (no UI)      | ⏳ Pending |
+| 00 | milestone/00-project-setup   | Scaffold, docs, copyright, git init  | ✅ Complete (confirmed 2026-06-11) |
+| 01 | milestone/01-game-logic       | Core game state & logic (no UI)      | ✅ Complete — merge to main pending user confirmation |
 | 02 | milestone/02-basic-ui         | Grid, X/O rendering, tap to play     | ⏳ Pending |
 | 03 | milestone/03-win-detection    | Win/draw detection, end-game UI      | ⏳ Pending |
 | 04 | milestone/04-ai-player        | Simple AI opponent                   | ⏳ Pending |

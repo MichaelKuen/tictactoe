@@ -28,6 +28,76 @@ Tools • Dart 3.11.1 • DevTools 2.54.1
 
 (to be filled after running)
 
+### git log (Milestone 00)
+
+```
+44e8e20 chore(init): project scaffold with docs and copyright headers
+```
+
+---
+
+## Milestone 01 — Game Logic
+
+**Date:** 2026-06-11  
+**Branch:** milestone/01-game-logic  
+**Flutter:** 3.41.4 | **Dart:** 3.11.1
+
+### New files
+
+```
+lib/game/player.dart        — Player enum + opponent/label
+lib/game/board.dart         — Board (immutable, 9 cells)
+lib/game/game_status.dart   — GameStatus enum
+lib/game/game.dart          — Game state machine
+test/game/board_test.dart   — 30 Board tests
+test/game/game_test.dart    — 22 Game tests
+```
+
+### flutter analyze (first run — 4 lint issues)
+
+```
+info - The local variable '_drawBoard' starts with an underscore — test/game/board_test.dart:120:11
+info - The local variable '_xWinsRow' starts with an underscore — test/game/game_test.dart:53:10
+info - The local variable '_oWinsRow' starts with an underscore — test/game/game_test.dart:69:10
+info - The local variable '_draw' starts with an underscore — test/game/game_test.dart:93:10
+flutter: 4 issues found. (ran in 1.0s)
+```
+
+**Fix:** Renamed local test helpers — removed leading underscores.
+
+### flutter analyze (after fix)
+
+```
+Analyzing tictactoe...
+No issues found! (ran in 1.0s)
+```
+
+**Result: PASS — zero issues**
+
+### flutter test --reporter expanded
+
+```
+00:00 +0: loading .../test/game/board_test.dart
+00:00 +7: Board.empty() [7 tests passed]
+00:00 +13: Board.move() [6 tests passed]
+00:00 +23: Board winner detection [10 tests passed]
+00:00 +28: Board draw detection [4 tests passed]
+00:00 +30: Board.isTerminal [2 tests passed]
+00:00 +34: Game.start() [4 tests passed]
+00:00 +38: Game.move() — turn alternation [4 tests passed]
+00:00 +42: Game.move() — X wins [4 tests passed]
+00:00 +45: Game.move() — O wins [3 tests passed]
+00:00 +47: Game.move() — diagonal wins [2 tests passed]
+00:00 +49: Game.move() — draw [2 tests passed]
+00:00 +51: Game.reset() [2 tests passed]
+00:00 +52: All tests passed!
+```
+
+**Result: PASS — 52/52 (30 board + 22 game + 1 widget smoke test)**
+
 ### git log
 
-(to be filled after commit)
+```
+98b141e feat(game): implement core board state and game logic
+44e8e20 chore(init): project scaffold with docs and copyright headers
+```
