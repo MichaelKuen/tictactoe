@@ -101,3 +101,47 @@ No issues found! (ran in 1.0s)
 98b141e feat(game): implement core board state and game logic
 44e8e20 chore(init): project scaffold with docs and copyright headers
 ```
+
+---
+
+## Milestone 02 — Basic UI
+
+**Date:** 2026-06-25  
+**Branch:** milestone/02-basic-ui  
+**Flutter:** 3.41.4 | **Dart:** 3.11.1
+
+### New / changed files
+
+```
+lib/main.dart                   — replaced counter scaffold with TicTacToeApp
+lib/ui/game_screen.dart         — StatefulWidget: holds Game state, status text, reset button
+lib/ui/board_widget.dart        — 3×3 GridView, passes taps up via onCellTap
+lib/ui/cell_widget.dart         — individual cell: GestureDetector, X/O text, themed border
+test/widget_test.dart           — replaced counter smoke test with app smoke test
+test/ui/game_screen_test.dart   — 5 widget tests (turn display, place X, no-op, reset, X wins)
+```
+
+### flutter analyze
+
+```
+Analyzing tictactoe...
+No issues found! (ran in 1.0s)
+```
+
+**Result: PASS — zero issues**
+
+### flutter test
+
+```
+00:00 +57: All tests passed!
+```
+
+**Result: PASS — 57/57 (30 board + 22 game + 1 smoke + 5 widget tests)**
+
+### git log
+
+```
+58db9b5 feat(ui): implement basic game UI — grid, X/O rendering, tap to play
+e915208 docs(milestone-01): add tutorial for core game logic
+76904de docs: update CLAUDE.md and README with milestone 00/01 status
+```
