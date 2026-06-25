@@ -104,6 +104,49 @@ No issues found! (ran in 1.0s)
 
 ---
 
+## Milestone 03 — Win Detection UI
+
+**Date:** 2026-06-25  
+**Branch:** milestone/03-win-detection  
+**Flutter:** 3.41.4 | **Dart:** 3.11.1
+
+### Changed files
+
+```
+lib/game/board.dart             — added winningLine getter (List<int>?)
+lib/ui/cell_widget.dart         — added highlighted param (primaryContainer bg + primary border)
+lib/ui/board_widget.dart        — added winningLine param, passes highlighted to each CellWidget
+lib/ui/game_screen.dart         — passes board.winningLine to BoardWidget
+test/game/board_test.dart       — 5 new Board.winningLine tests
+test/ui/game_screen_test.dart   — 2 new highlighting widget tests
+```
+
+### flutter analyze
+
+```
+No issues found! (ran in 1.0s)
+```
+
+**Result: PASS — zero issues**
+
+### flutter test
+
+```
++64: All tests passed!
+```
+
+**Result: PASS — 64/64**
+
+### git log
+
+```
+cf4d62d feat(ui): highlight winning cells on game over
+3326b9a docs(milestone-02): add tutorial for basic UI
+61e548a chore(merge): milestone/02-basic-ui → main
+```
+
+---
+
 ## Milestone 02 — Basic UI
 
 **Date:** 2026-06-25  

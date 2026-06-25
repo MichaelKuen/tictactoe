@@ -6,8 +6,14 @@ import '../game/player.dart';
 class CellWidget extends StatelessWidget {
   final Player? player;
   final VoidCallback? onTap;
+  final bool highlighted;
 
-  const CellWidget({super.key, required this.player, this.onTap});
+  const CellWidget({
+    super.key,
+    required this.player,
+    this.onTap,
+    this.highlighted = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +27,13 @@ class CellWidget extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          border: Border.all(color: theme.colorScheme.outline),
+          color: highlighted ? theme.colorScheme.primaryContainer : null,
+          border: Border.all(
+            color: highlighted
+                ? theme.colorScheme.primary
+                : theme.colorScheme.outline,
+            width: highlighted ? 2 : 1,
+          ),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Center(

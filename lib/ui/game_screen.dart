@@ -67,6 +67,7 @@ class _GameScreenState extends State<GameScreen> {
                     constraints: const BoxConstraints(maxWidth: 360, maxHeight: 360),
                     child: BoardWidget(
                       board: _game.board,
+                      winningLine: _game.board.winningLine,
                       onCellTap: _game.isOver ? null : _onCellTap,
                     ),
                   ),
