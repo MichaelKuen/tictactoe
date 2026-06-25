@@ -7,6 +7,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-06-25 — Milestone 02: Basic UI
+
+### Added
+- `lib/ui/game_screen.dart` — `GameScreen` StatefulWidget: holds `Game` state, shows status text and reset button
+- `lib/ui/board_widget.dart` — `BoardWidget`: 3×3 `GridView` that delegates taps via `onCellTap`
+- `lib/ui/cell_widget.dart` — `CellWidget`: bordered cell rendering X/O with theme colours
+- `test/ui/game_screen_test.dart` — 5 widget tests: turn indicator, place X, occupied-cell no-op, reset, X wins message
+
+### Changed
+- `lib/main.dart` — replaced Flutter counter scaffold with `TicTacToeApp` (Material 3, indigo seed)
+- `test/widget_test.dart` — replaced counter smoke test with app smoke test
+
 ## [0.2.0] — 2026-06-11 — Milestone 01: Game Logic
 
 ### Added
