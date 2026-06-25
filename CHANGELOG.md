@@ -7,6 +7,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-06-25 — Milestone 03: Win Detection UI
+
+### Added
+- `Board.winningLine` getter — returns `List<int>?` of the 3 winning cell indices, or null
+- `CellWidget.highlighted` param — draws `primaryContainer` background and `primary` border on winning cells
+- 5 new `Board.winningLine` unit tests
+- 2 new widget tests (winning cells highlighted, no highlight mid-game)
+
+### Changed
+- `BoardWidget` — accepts `winningLine` and forwards `highlighted` to each `CellWidget`
+- `GameScreen` — passes `_game.board.winningLine` to `BoardWidget`
+
 ## [0.3.0] — 2026-06-25 — Milestone 02: Basic UI
 
 ### Added
