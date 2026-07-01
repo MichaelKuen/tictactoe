@@ -104,6 +104,47 @@ No issues found! (ran in 1.0s)
 
 ---
 
+## Milestone 04 — AI Player & UI Polish
+
+**Date:** 2026-07-01
+**Branch:** milestone/04-ai-player
+**Flutter:** 3.41.4 | **Dart:** 3.11.1
+
+### New / changed files
+
+```
+lib/game/ai.dart                — AiPlayer.bestMove() — minimax algorithm
+lib/main.dart                   — ColorScheme.dark() with red/cyan/navy contrast theme
+lib/ui/cell_widget.dart         — permanent dark cell fill; amber winning highlight
+lib/ui/game_screen.dart         — vs AI/Human toggle; responsive wide layout with sidebar
+test/game/ai_test.dart          — AI test suite (wins, blocks, never-loses exhaustive)
+test/ui/game_screen_test.dart   — updated colour assertions for new cell backgrounds
+```
+
+### flutter analyze
+
+```
+No issues found! (ran in 1.3s)
+```
+
+**Result: PASS — zero issues**
+
+### flutter test
+
+```
++76: All tests passed!
+```
+
+**Result: PASS — 76/76**
+
+### git log
+
+```
+7155b9b feat(ai): add minimax AI opponent with vs AI / vs Human mode toggle
+```
+
+---
+
 ## Milestone 03 — Win Detection UI
 
 **Date:** 2026-06-25  

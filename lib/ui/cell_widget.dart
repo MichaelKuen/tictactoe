@@ -27,12 +27,14 @@ class CellWidget extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: highlighted ? theme.colorScheme.primaryContainer : null,
+          color: highlighted
+              ? const Color(0x44FFD740)
+              : const Color(0xFF252540),
           border: Border.all(
             color: highlighted
-                ? theme.colorScheme.primary
+                ? const Color(0xFFFFD740)
                 : theme.colorScheme.outline,
-            width: highlighted ? 2 : 1,
+            width: highlighted ? 2.5 : 1,
           ),
           borderRadius: BorderRadius.circular(8),
         ),

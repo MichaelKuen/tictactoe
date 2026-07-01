@@ -48,9 +48,10 @@ The `.dart_tool/` directory is generated — do NOT add headers there.
 | 00 | milestone/00-project-setup   | Scaffold, docs, copyright, git init  | ✅ Complete (confirmed 2026-06-11) |
 | 01 | milestone/01-game-logic       | Core game state & logic (no UI)      | ✅ Complete (merged to main 2026-06-25) |
 | 02 | milestone/02-basic-ui         | Grid, X/O rendering, tap to play     | ✅ Complete (merged to main 2026-06-25) |
-| 03 | milestone/03-win-detection    | Win/draw detection, end-game UI      | ✅ Complete — merge to main pending user confirmation |
-| 04 | milestone/04-ai-player        | Simple AI opponent                   | ⏳ Pending |
-| 05 | milestone/05-polish           | Animations, sound, theming           | ⏳ Pending |
+| 03 | milestone/03-win-detection    | Win/draw detection, end-game UI      | ✅ Complete (merged to main 2026-06-25) |
+| 04 | milestone/04-ai-player        | Minimax AI, contrast colours, Windows layout | ✅ Complete (confirmed 2026-07-01) |
+| 05 | milestone/05-admob            | Google AdMob integration (banner, interstitial, rewarded) | ⏳ Pending |
+| 06 | milestone/06-polish           | Animations, sound, theming           | ⏳ Pending |
 
 ---
 

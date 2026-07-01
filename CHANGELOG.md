@@ -7,6 +7,25 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-07-01 — Milestone 04: AI Player & UI Polish
+
+### Added
+- `lib/game/ai.dart` — `AiPlayer.bestMove()` using minimax algorithm; unbeatable O player
+- `test/game/ai_test.dart` — AI test suite (wins, blocks, never loses exhaustive coverage)
+- `lib/ui/game_screen.dart` — vs AI / vs Human mode toggle via `SegmentedButton`
+- Responsive layout: `LayoutBuilder` breakpoint at 600 px — wide screens (Windows/Web) show
+  centered board with right-side sidebar menu (mode buttons + New Game); narrow screens keep
+  stacked column layout
+
+### Changed
+- `lib/main.dart` — switched to `ColorScheme.dark()` with vivid red primary (X) and sky-blue
+  secondary (O) on dark navy background for high contrast
+- `lib/ui/cell_widget.dart` — cells now have a permanent dark fill (`#252540`); winning cells
+  highlight in amber (`#FFD740` tint + border) instead of `primaryContainer`
+- `lib/ui/game_screen.dart` — AppBar uses dark surface colour; wide layout adds `_SidebarButton`
+  private widget for mode selection
+- `test/ui/game_screen_test.dart` — updated colour assertions to match new cell background
+
 ## [0.4.0] — 2026-06-25 — Milestone 03: Win Detection UI
 
 ### Added

@@ -88,8 +88,8 @@ void main() {
           find.descendant(of: _cell(index), matching: find.byType(Container)),
         );
         final decoration = container.decoration as BoxDecoration;
-        expect(decoration.color, isNull,
-            reason: 'cell $index should not be highlighted');
+        expect(decoration.color, const Color(0xFF252540),
+            reason: 'cell $index should have the default cell colour, not a highlight');
       }
     });
 
@@ -102,7 +102,7 @@ void main() {
         find.descendant(of: _cell(0), matching: find.byType(Container)),
       );
       final decoration = container.decoration as BoxDecoration;
-      expect(decoration.color, isNull);
+      expect(decoration.color, const Color(0xFF252540));
     });
   });
 
