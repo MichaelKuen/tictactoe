@@ -4,6 +4,38 @@ All commands run during development, with exact output. Nothing summarised.
 
 ---
 
+## Milestone 11 — Score Tracking
+
+**Date:** 2026-07-01
+**Branch:** milestone/11-score-tracking
+**Flutter:** 3.41.4 | **Dart:** 3.11.1
+
+### New / changed files
+
+```
+lib/game/score.dart              — NEW: immutable Score data class
+lib/game/score_repository.dart   — NEW: SharedPreferences persistence for ai + human scores
+lib/ui/score_widget.dart         — NEW: animated three-column scoreboard widget
+lib/ui/game_screen.dart          — integrated score tracking and ScoreWidget in both layouts
+test/game/score_test.dart        — NEW: 7 unit tests for Score
+pubspec.yaml                     — added shared_preferences: ^2.3.2
+```
+
+### Commands & Output
+
+```
+flutter pub get
+  Changed 13 dependencies!
+
+flutter analyze
+  No issues found! (ran in 2.3s)
+
+flutter test
+  00:03 +98: All tests passed!
+```
+
+---
+
 ## Milestone 10 — Health Awareness Timer
 
 **Date:** 2026-07-01

@@ -56,6 +56,7 @@ The `.dart_tool/` directory is generated — do NOT add headers there.
 | 08 | milestone/08-release-prep     | AI difficulty levels + release prep         | ✅ Complete (confirmed 2026-07-01) |
 | 09 | milestone/09-app-icon-splash  | Custom app icon + native splash screen      | ✅ Complete (confirmed 2026-07-01) |
 | 10 | milestone/10-health-timer     | Health awareness session timer + break reminders | ✅ Complete (confirmed 2026-07-01) |
+| 11 | milestone/11-score-tracking   | Persistent win/draw/loss score tracking          | ✅ Complete (confirmed 2026-07-01) |
 
 ---
 

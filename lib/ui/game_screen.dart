@@ -11,10 +11,13 @@ import '../game/difficulty.dart';
 import '../game/game.dart';
 import '../game/game_status.dart';
 import '../game/player.dart';
+import '../game/score.dart';
+import '../game/score_repository.dart';
 import '../health/session_timer.dart';
 import '../theme_notifier.dart';
 import 'board_widget.dart';
 import 'games_sheet.dart';
+import 'score_widget.dart';
 import 'session_bar_widget.dart';
 
 class GameScreen extends StatefulWidget {
@@ -36,6 +39,9 @@ class _GameScreenState extends State<GameScreen> {
   final _sessionTimer = SessionTimer();
   bool _eyeBreakShown = false;
   bool _sessionLimitShown = false;
+  ScoreRepository? _scoreRepo;
+  Score _aiScore = const Score();
+  Score _humanScore = const Score();
 
   static bool get _adsSupported =>
       !kIsWeb &&
@@ -51,6 +57,17 @@ class _GameScreenState extends State<GameScreen> {
     _loadBanner();
     _sessionTimer.start();
     _sessionTimer.addListener(_onTimerTick);
+    _initScores();
+  }
+
+  Future<void> _initScores() async {
+    final repo = await ScoreRepository.create();
+    if (!mounted) return;
+    setState(() {
+      _scoreRepo = repo;
+      _aiScore = repo.aiScore;
+      _humanScore = repo.humanScore;
+    });
   }
 
   void _loadBanner() {
@@ -176,6 +193,7 @@ class _GameScreenState extends State<GameScreen> {
           ? HapticFeedback.lightImpact()
           : HapticFeedback.mediumImpact();
       AdManager.instance.onGameEnded();
+      _recordResult();
     } else if (_isAiTurn) {
       _scheduleAiMove();
     }
@@ -193,7 +211,42 @@ class _GameScreenState extends State<GameScreen> {
       if (_game.isOver) {
         HapticFeedback.mediumImpact();
         AdManager.instance.onGameEnded();
+        _recordResult();
       }
+    });
+  }
+
+  void _recordResult() {
+    final repo = _scoreRepo;
+    if (repo == null || !_game.isOver) return;
+    if (_vsAi) {
+      final next = switch (_game.status) {
+        GameStatus.xWins => _aiScore.copyWithXWin(),
+        GameStatus.oWins => _aiScore.copyWithOWin(),
+        GameStatus.draw => _aiScore.copyWithDraw(),
+        GameStatus.playing => null,
+      };
+      if (next == null) return;
+      setState(() => _aiScore = next);
+      repo.saveAiScore(next);
+    } else {
+      final next = switch (_game.status) {
+        GameStatus.xWins => _humanScore.copyWithXWin(),
+        GameStatus.oWins => _humanScore.copyWithOWin(),
+        GameStatus.draw => _humanScore.copyWithDraw(),
+        GameStatus.playing => null,
+      };
+      if (next == null) return;
+      setState(() => _humanScore = next);
+      repo.saveHumanScore(next);
+    }
+  }
+
+  void _resetScores() {
+    _scoreRepo?.resetAll();
+    setState(() {
+      _aiScore = const Score();
+      _humanScore = const Score();
     });
   }
 
@@ -323,7 +376,14 @@ class _GameScreenState extends State<GameScreen> {
               ),
             ),
           ],
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
+          if (_scoreRepo != null)
+            ScoreWidget(
+              score: _vsAi ? _aiScore : _humanScore,
+              vsAi: _vsAi,
+              onReset: _resetScores,
+            ),
+          const SizedBox(height: 8),
           _buildStatus(context, theme),
           const SizedBox(height: 16),
           _buildBoard(boardEnabled),
@@ -426,6 +486,14 @@ class _GameScreenState extends State<GameScreen> {
               if (_canHint) ...[
                 const SizedBox(height: 8),
                 _HintButton(onTap: _onHintTapped),
+              ],
+              if (_scoreRepo != null) ...[
+                const SizedBox(height: 12),
+                ScoreWidget(
+                  score: _vsAi ? _aiScore : _humanScore,
+                  vsAi: _vsAi,
+                  onReset: _resetScores,
+                ),
               ],
               const SizedBox(height: 8),
               Divider(color: sidebarBorderColor),
