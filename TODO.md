@@ -346,8 +346,8 @@ Once internal testing passes:
 
 | Option | Description | Status |
 |--------|-------------|--------|
-| B | Score tracking — win/loss/draw counters persisted with SharedPreferences | ⏸ Deferred |
-| C | In-app privacy policy page (required for Play Store + AdMob) | ⏸ Deferred |
+| B | Score tracking — win/loss/draw counters persisted with SharedPreferences | ✅ Done — milestone 11 |
+| C | In-app privacy policy page (required for Play Store + AdMob) | ✅ Done — milestone 12 |
 
 ---
 
