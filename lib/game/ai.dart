@@ -3,10 +3,35 @@
 
 import 'dart:math';
 import 'board.dart';
+import 'difficulty.dart';
 import 'player.dart';
+
+final _rng = Random();
 
 class AiPlayer {
   const AiPlayer._();
+
+  /// Returns a move index for the given [difficulty].
+  ///
+  /// - Easy   → always random
+  /// - Medium → 35 % random, 65 % optimal (minimax)
+  /// - Hard   → always optimal (minimax)
+  static int move(Board board, Player aiPlayer, Difficulty difficulty) {
+    final empties = board.emptyCells;
+    if (empties.isEmpty) return -1;
+
+    switch (difficulty) {
+      case Difficulty.easy:
+        return empties[_rng.nextInt(empties.length)];
+      case Difficulty.medium:
+        if (_rng.nextDouble() < 0.35) {
+          return empties[_rng.nextInt(empties.length)];
+        }
+        return bestMove(board, aiPlayer);
+      case Difficulty.hard:
+        return bestMove(board, aiPlayer);
+    }
+  }
 
   static int bestMove(Board board, Player aiPlayer) {
     int bestScore = -1000;

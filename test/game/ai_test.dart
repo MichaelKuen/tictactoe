@@ -4,6 +4,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tictactoe/game/ai.dart';
 import 'package:tictactoe/game/board.dart';
+import 'package:tictactoe/game/difficulty.dart';
 import 'package:tictactoe/game/player.dart';
 
 Board _board(List<String> spec) {
@@ -66,6 +67,37 @@ void main() {
         expect(board.winner, isNot(Player.x),
             reason: 'AI (O) lost when X opened at $firstMove');
       }
+    });
+  });
+
+  group('AiPlayer.move() — difficulty', () {
+    test('easy returns a valid empty cell', () {
+      final board = _board(['X', 'O', '.', '.', 'X', '.', '.', '.', '.']);
+      for (var i = 0; i < 20; i++) {
+        final idx = AiPlayer.move(board, Player.o, Difficulty.easy);
+        expect(board.emptyCells, contains(idx));
+      }
+    });
+
+    test('medium always returns a valid empty cell', () {
+      final board = _board(['X', '.', '.', '.', 'O', '.', '.', '.', 'X']);
+      for (var i = 0; i < 20; i++) {
+        final idx = AiPlayer.move(board, Player.o, Difficulty.medium);
+        expect(board.emptyCells, contains(idx));
+      }
+    });
+
+    test('hard returns the same as bestMove', () {
+      final board = _board(['O', 'O', '.', 'X', 'X', '.', '.', '.', '.']);
+      expect(
+        AiPlayer.move(board, Player.o, Difficulty.hard),
+        AiPlayer.bestMove(board, Player.o),
+      );
+    });
+
+    test('returns -1 when board is full', () {
+      final board = _board(['X', 'O', 'X', 'O', 'X', 'O', 'O', 'X', 'O']);
+      expect(AiPlayer.move(board, Player.o, Difficulty.hard), -1);
     });
   });
 }

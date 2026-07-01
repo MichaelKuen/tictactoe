@@ -7,6 +7,27 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.9.0] — 2026-07-01 — Milestone 08: AI Difficulty + Release Prep
+
+### Added
+- `lib/game/difficulty.dart` — `Difficulty` enum: `easy`, `medium`, `hard` with `label` getter
+- `AiPlayer.move(board, player, difficulty)` — unified move method:
+  - **Easy** → always random (picks from empty cells)
+  - **Medium** → 35 % random, 65 % minimax (makes mistakes, still plays smart)
+  - **Hard** → full minimax (unbeatable — previous default)
+- **Narrow layout** — `SegmentedButton<Difficulty>` (Easy / Medium / Hard) appears below the
+  mode toggle when vs AI is selected
+- **Wide layout sidebar** — "Difficulty" section with three `_SidebarButton`s, visible in vs AI
+  mode; sidebar column now scrollable (`SingleChildScrollView`) so it never overflows on short
+  screens
+- 4 new unit tests in `test/game/ai_test.dart` covering all three difficulty modes and the
+  full-board edge case
+
+### Changed
+- `AiPlayer.bestMove()` retained as a public helper; `AiPlayer.move()` wraps it for difficulty
+- Wide sidebar: `Column` wrapped in `SingleChildScrollView` with `mainAxisSize: min` to handle
+  overflow when all sections are visible simultaneously
+
 ## [0.8.0] — 2026-07-01 — Milestone 07: Games Hub
 
 ### Added

@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../ads/ad_manager.dart';
 import '../game/ai.dart';
+import '../game/difficulty.dart';
 import '../game/game.dart';
 import '../game/game_status.dart';
 import '../game/player.dart';
@@ -24,6 +25,7 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> {
   Game _game = Game.start();
   bool _vsAi = true;
+  Difficulty _difficulty = Difficulty.hard;
   bool _aiThinking = false;
   Timer? _aiTimer;
   int? _hintCell;
@@ -93,7 +95,7 @@ class _GameScreenState extends State<GameScreen> {
       if (!mounted) return;
       HapticFeedback.selectionClick();
       setState(() {
-        _game = _game.move(AiPlayer.bestMove(_game.board, Player.o));
+        _game = _game.move(AiPlayer.move(_game.board, Player.o, _difficulty));
         _aiThinking = false;
       });
       if (_game.isOver) {
@@ -123,6 +125,15 @@ class _GameScreenState extends State<GameScreen> {
       _cancelAiTimer();
       _hintCell = null;
       _vsAi = vsAi;
+      _game = Game.start();
+    });
+  }
+
+  void _setDifficulty(Difficulty d) {
+    setState(() {
+      _cancelAiTimer();
+      _hintCell = null;
+      _difficulty = d;
       _game = Game.start();
     });
   }
@@ -205,6 +216,21 @@ class _GameScreenState extends State<GameScreen> {
             selected: {_vsAi},
             onSelectionChanged: (s) => _setMode(s.first),
           ),
+          if (_vsAi) ...[
+            const SizedBox(height: 12),
+            SegmentedButton<Difficulty>(
+              segments: Difficulty.values
+                  .map((d) => ButtonSegment(value: d, label: Text(d.label)))
+                  .toList(),
+              selected: {_difficulty},
+              onSelectionChanged: (s) => _setDifficulty(s.first),
+              style: SegmentedButton.styleFrom(
+                selectedBackgroundColor:
+                    theme.colorScheme.primary.withValues(alpha: 0.2),
+                selectedForegroundColor: theme.colorScheme.primary,
+              ),
+            ),
+          ],
           const SizedBox(height: 24),
           _buildStatus(context, theme),
           const SizedBox(height: 16),
@@ -253,11 +279,12 @@ class _GameScreenState extends State<GameScreen> {
             border: Border(
                 left: BorderSide(color: sidebarBorderColor)),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
               Text(
                 'Game Mode',
                 style: theme.textTheme.labelMedium?.copyWith(
@@ -277,6 +304,29 @@ class _GameScreenState extends State<GameScreen> {
                 selected: !_vsAi,
                 onTap: () => _setMode(false),
               ),
+              if (_vsAi) ...[
+                const SizedBox(height: 24),
+                Divider(color: sidebarBorderColor),
+                const SizedBox(height: 16),
+                Text(
+                  'Difficulty',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ...Difficulty.values.map(
+                  (d) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: _SidebarButton(
+                      label: d.label,
+                      selected: _difficulty == d,
+                      onTap: () => _setDifficulty(d),
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 32),
               Divider(color: sidebarBorderColor),
               const SizedBox(height: 32),
@@ -297,6 +347,7 @@ class _GameScreenState extends State<GameScreen> {
                 ),
               ),
             ],
+          ),
           ),
         ),
       ],
