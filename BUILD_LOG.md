@@ -4,6 +4,45 @@ All commands run during development, with exact output. Nothing summarised.
 
 ---
 
+## Milestone 10 — Health Awareness Timer
+
+**Date:** 2026-07-01
+**Branch:** milestone/10-health-timer
+**Flutter:** 3.41.4 | **Dart:** 3.11.1
+
+### New / changed files
+
+```
+lib/health/session_timer.dart       — NEW: SessionTimer ChangeNotifier (20-min eye-break, 60-min session limit)
+lib/ui/session_bar_widget.dart      — NEW: compact health bar widget with AnimatedContainer + _PulsingDot
+lib/ui/game_screen.dart             — integrated SessionTimer, eye-break snackbar, session-limit dialog
+lib/ui/cell_widget.dart             — fix: _placeCtrl.stop()+reset() instead of value=0 in didUpdateWidget
+test/health/session_timer_test.dart — NEW: 10 unit tests for SessionTimer
+```
+
+### Commands & Output
+
+```
+flutter analyze
+  No issues found! (ran in 1.4s)
+
+flutter test
+  00:02 +91: All tests passed!
+```
+
+### Root-cause notes
+
+**CellWidget animation fix:** `_placeCtrl.value = 0` during `didUpdateWidget` notified `ScaleTransition`
+listeners mid-reconciliation, scheduling an extra frame. Changed to `_placeCtrl.stop(); _placeCtrl.reset()`
+which stops the animation cleanly before resetting without triggering listener callbacks at an unsafe time.
+
+**Wide-layout sidebar overflow:** Adding `SessionBarWidget` reduced the body height available to the sidebar.
+The "New Game" button (after mode + difficulty sections) was pushed past the 600 px test viewport bottom,
+causing `tester.tap(find.text('New Game'))` to fire a hit-test warning and not register. Fix: reduced the
+`SizedBox(height: 32)` spacers before and after the separator Divider to `SizedBox(height: 8)`.
+
+---
+
 ## Milestone 09 — Custom App Icon + Splash Screen
 
 **Date:** 2026-07-01
