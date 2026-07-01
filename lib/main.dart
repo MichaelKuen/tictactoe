@@ -15,7 +15,16 @@ class TicTacToeApp extends StatelessWidget {
     return MaterialApp(
       title: 'Tic Tac Toe',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+        colorScheme: ColorScheme.dark(
+          primary: const Color(0xFFFF5252),     // X — vivid red
+          onPrimary: Colors.white,
+          secondary: const Color(0xFF40C4FF),   // O — vivid sky blue
+          onSecondary: const Color(0xFF002233),
+          surface: const Color(0xFF1A1A2E),
+          onSurface: const Color(0xFFE0E0E0),
+          outline: const Color(0xFF5A5A7A),
+          inversePrimary: const Color(0xFF2A2A4A),
+        ),
         useMaterial3: true,
       ),
       home: const GameScreen(),
