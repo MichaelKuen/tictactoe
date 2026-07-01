@@ -4,6 +4,54 @@ All commands run during development, with exact output. Nothing summarised.
 
 ---
 
+## Milestone 05 — AdMob Integration
+
+**Date:** 2026-07-01
+**Branch:** milestone/05-admob
+**Flutter:** 3.41.4 | **Dart:** 3.11.1
+
+### New / changed files
+
+```
+lib/ads/ad_manager.dart             — AdManager singleton (interstitial + rewarded)
+lib/main.dart                       — async init + AdManager.initialize()
+lib/ui/game_screen.dart             — banner ad, interstitial trigger, rewarded hint button
+lib/ui/board_widget.dart            — hintCell param
+lib/ui/cell_widget.dart             — hinted param (green tint)
+android/app/src/main/AndroidManifest.xml — INTERNET permission + AdMob App ID
+pubspec.yaml                        — google_mobile_ads: ^9.0.0
+```
+
+### flutter pub add google_mobile_ads
+
+```
++ google_mobile_ads 9.0.0
++ plugin_platform_interface 2.1.8
++ webview_flutter 4.14.0
++ webview_flutter_android 4.12.0
++ webview_flutter_platform_interface 2.15.1
++ webview_flutter_wkwebview 3.25.1
+Changed 6 dependencies!
+```
+
+### flutter analyze
+
+```
+No issues found! (ran in 1.3s)
+```
+
+**Result: PASS — zero issues**
+
+### flutter test
+
+```
++76: All tests passed!
+```
+
+**Result: PASS — 76/76**
+
+---
+
 ## Milestone 00 — Project Setup
 
 **Date:** 2026-06-11  

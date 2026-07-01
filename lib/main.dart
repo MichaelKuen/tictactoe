@@ -1,9 +1,12 @@
 // Copyright © FullStackShack. All rights reserved.
 // Unauthorised use, reproduction, or distribution is strictly prohibited.
 import 'package:flutter/material.dart';
+import 'ads/ad_manager.dart';
 import 'ui/game_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AdManager.instance.initialize();
   runApp(const TicTacToeApp());
 }
 

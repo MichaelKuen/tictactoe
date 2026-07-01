@@ -7,12 +7,14 @@ class CellWidget extends StatelessWidget {
   final Player? player;
   final VoidCallback? onTap;
   final bool highlighted;
+  final bool hinted;
 
   const CellWidget({
     super.key,
     required this.player,
     this.onTap,
     this.highlighted = false,
+    this.hinted = false,
   });
 
   @override
@@ -22,20 +24,31 @@ class CellWidget extends StatelessWidget {
         ? theme.colorScheme.primary
         : theme.colorScheme.secondary;
 
+    final Color bgColor;
+    final Color borderColor;
+    final double borderWidth;
+
+    if (highlighted) {
+      bgColor = const Color(0x44FFD740);
+      borderColor = const Color(0xFFFFD740);
+      borderWidth = 2.5;
+    } else if (hinted) {
+      bgColor = const Color(0x4469F0AE);
+      borderColor = const Color(0xFF69F0AE);
+      borderWidth = 2.5;
+    } else {
+      bgColor = const Color(0xFF252540);
+      borderColor = theme.colorScheme.outline;
+      borderWidth = 1;
+    }
+
     return GestureDetector(
       onTap: player == null ? onTap : null,
       child: Container(
         margin: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: highlighted
-              ? const Color(0x44FFD740)
-              : const Color(0xFF252540),
-          border: Border.all(
-            color: highlighted
-                ? const Color(0xFFFFD740)
-                : theme.colorScheme.outline,
-            width: highlighted ? 2.5 : 1,
-          ),
+          color: bgColor,
+          border: Border.all(color: borderColor, width: borderWidth),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Center(
