@@ -8,12 +8,14 @@ class BoardWidget extends StatelessWidget {
   final Board board;
   final void Function(int index)? onCellTap;
   final List<int>? winningLine;
+  final int? hintCell;
 
   const BoardWidget({
     super.key,
     required this.board,
     this.onCellTap,
     this.winningLine,
+    this.hintCell,
   });
 
   @override
@@ -30,6 +32,7 @@ class BoardWidget extends StatelessWidget {
           key: ValueKey('cell_$index'),
           player: board[index],
           highlighted: winningLine?.contains(index) ?? false,
+          hinted: hintCell == index,
           onTap: onCellTap != null ? () => onCellTap!(index) : null,
         ),
       ),

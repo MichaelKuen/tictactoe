@@ -7,6 +7,28 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.6.0] — 2026-07-01 — Milestone 05: AdMob Integration
+
+### Added
+- `google_mobile_ads: ^9.0.0` dependency
+- `lib/ads/ad_manager.dart` — singleton `AdManager`: initialises SDK, loads and cycles
+  interstitial (every 3rd game) and rewarded (on demand) ads; platform-gated so web/desktop
+  are unaffected
+- **Banner ad** — pinned to `Scaffold.bottomNavigationBar`; loads automatically on Android/iOS
+  using Google's test banner unit ID
+- **Interstitial ad** — shown automatically after every 3rd game over (win or draw); preloaded
+  and reloaded in the background
+- **Rewarded video ad** — "Watch ad for hint" button appears while a game is in progress;
+  completing the ad highlights the optimal cell in green (`#69F0AE`) via `AiPlayer.bestMove`
+- `CellWidget.hinted` param — green tint + border to indicate the hinted cell
+- `BoardWidget.hintCell` param (int?) — passed through to `CellWidget`
+- `INTERNET` permission and AdMob `APPLICATION_ID` meta-data added to `AndroidManifest.xml`
+- `WidgetsFlutterBinding.ensureInitialized()` + async `AdManager.initialize()` in `main()`
+
+### Notes
+- All ad unit IDs are Google's official **test IDs** — swap for real IDs before release
+- Ads are suppressed on Web and Windows (`kIsWeb` / `defaultTargetPlatform` guard)
+
 ## [0.5.0] — 2026-07-01 — Milestone 04: AI Player & UI Polish
 
 ### Added

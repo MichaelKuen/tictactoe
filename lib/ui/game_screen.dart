@@ -1,7 +1,10 @@
 // Copyright © FullStackShack. All rights reserved.
 // Unauthorised use, reproduction, or distribution is strictly prohibited.
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import '../ads/ad_manager.dart';
 import '../game/ai.dart';
 import '../game/game.dart';
 import '../game/game_status.dart';
@@ -20,22 +23,64 @@ class _GameScreenState extends State<GameScreen> {
   bool _vsAi = true;
   bool _aiThinking = false;
   Timer? _aiTimer;
+  int? _hintCell;
 
-  bool get _isAiTurn =>
-      _vsAi && !_game.isOver && _game.currentPlayer == Player.o;
+  // Banner ad — managed here so it is tied to this widget's lifecycle.
+  BannerAd? _bannerAd;
+  bool _bannerLoaded = false;
+
+  static bool get _adsSupported =>
+      !kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS);
+
+  // Google test banner ID — replace with real ID before release.
+  static const String _bannerAdUnitId =
+      'ca-app-pub-3940256099942544/6300978111';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBanner();
+  }
+
+  void _loadBanner() {
+    if (!_adsSupported) return;
+    _bannerAd = BannerAd(
+      adUnitId: _bannerAdUnitId,
+      size: AdSize.banner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (_) => setState(() => _bannerLoaded = true),
+        onAdFailedToLoad: (ad, _) {
+          ad.dispose();
+          _bannerAd = null;
+        },
+      ),
+    )..load();
+  }
 
   @override
   void dispose() {
+    _bannerAd?.dispose();
     _aiTimer?.cancel();
     super.dispose();
   }
 
+  bool get _isAiTurn =>
+      _vsAi && !_game.isOver && _game.currentPlayer == Player.o;
+
   void _onCellTap(int index) {
     if (_aiThinking) return;
     setState(() {
+      _hintCell = null;
       _game = _game.move(index);
     });
-    if (_isAiTurn) _scheduleAiMove();
+    if (_game.isOver) {
+      AdManager.instance.onGameEnded();
+    } else if (_isAiTurn) {
+      _scheduleAiMove();
+    }
   }
 
   void _scheduleAiMove() {
@@ -46,6 +91,7 @@ class _GameScreenState extends State<GameScreen> {
         _game = _game.move(AiPlayer.bestMove(_game.board, Player.o));
         _aiThinking = false;
       });
+      if (_game.isOver) AdManager.instance.onGameEnded();
     });
   }
 
@@ -58,6 +104,7 @@ class _GameScreenState extends State<GameScreen> {
   void _reset() {
     setState(() {
       _cancelAiTimer();
+      _hintCell = null;
       _game = _game.reset();
     });
   }
@@ -65,8 +112,24 @@ class _GameScreenState extends State<GameScreen> {
   void _setMode(bool vsAi) {
     setState(() {
       _cancelAiTimer();
+      _hintCell = null;
       _vsAi = vsAi;
       _game = Game.start();
+    });
+  }
+
+  void _onHintTapped() {
+    if (!AdManager.instance.isRewardedReady) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Hint ad not ready yet — try again shortly.')),
+      );
+      return;
+    }
+    AdManager.instance.showRewarded(() {
+      if (!mounted) return;
+      final best = AiPlayer.bestMove(_game.board, _game.currentPlayer);
+      setState(() => _hintCell = best);
     });
   }
 
@@ -86,6 +149,9 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
+  bool get _canHint =>
+      !_game.isOver && !_aiThinking && !_isAiTurn && _hintCell == null;
+
   Widget _buildBoard(bool boardEnabled) {
     return Flexible(
       child: AspectRatio(
@@ -95,6 +161,7 @@ class _GameScreenState extends State<GameScreen> {
           child: BoardWidget(
             board: _game.board,
             winningLine: _game.board.winningLine,
+            hintCell: _hintCell,
             onCellTap: boardEnabled ? _onCellTap : null,
           ),
         ),
@@ -123,6 +190,10 @@ class _GameScreenState extends State<GameScreen> {
           _buildBoard(boardEnabled),
           const SizedBox(height: 16),
           FilledButton(onPressed: _reset, child: const Text('New Game')),
+          if (_canHint) ...[
+            const SizedBox(height: 8),
+            _HintButton(onTap: _onHintTapped),
+          ],
         ],
       ),
     );
@@ -135,10 +206,7 @@ class _GameScreenState extends State<GameScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Mirror spacer — keeps the board visually centred
         const SizedBox(width: sidebarWidth),
-
-        // Board area
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(32),
@@ -152,15 +220,11 @@ class _GameScreenState extends State<GameScreen> {
             ),
           ),
         ),
-
-        // Right sidebar
         Container(
           width: sidebarWidth,
           decoration: const BoxDecoration(
             color: Color(0xFF252540),
-            border: Border(
-              left: BorderSide(color: Color(0xFF5A5A7A)),
-            ),
+            border: Border(left: BorderSide(color: Color(0xFF5A5A7A))),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
           child: Column(
@@ -189,10 +253,11 @@ class _GameScreenState extends State<GameScreen> {
               const SizedBox(height: 32),
               const Divider(color: Color(0xFF5A5A7A)),
               const SizedBox(height: 32),
-              FilledButton(
-                onPressed: _reset,
-                child: const Text('New Game'),
-              ),
+              FilledButton(onPressed: _reset, child: const Text('New Game')),
+              if (_canHint) ...[
+                const SizedBox(height: 8),
+                _HintButton(onTap: _onHintTapped),
+              ],
             ],
           ),
         ),
@@ -204,11 +269,21 @@ class _GameScreenState extends State<GameScreen> {
   Widget build(BuildContext context) {
     final boardEnabled = !_game.isOver && !_aiThinking && !_isAiTurn;
 
+    Widget? bannerWidget;
+    if (_bannerLoaded && _bannerAd != null) {
+      bannerWidget = SizedBox(
+        width: double.infinity,
+        height: _bannerAd!.size.height.toDouble(),
+        child: AdWidget(ad: _bannerAd!),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tic Tac Toe'),
         backgroundColor: const Color(0xFF252540),
       ),
+      bottomNavigationBar: bannerWidget,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -218,6 +293,24 @@ class _GameScreenState extends State<GameScreen> {
             return _buildNarrowLayout(context, boardEnabled);
           },
         ),
+      ),
+    );
+  }
+}
+
+class _HintButton extends StatelessWidget {
+  final VoidCallback onTap;
+  const _HintButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: onTap,
+      icon: const Icon(Icons.lightbulb_outline, size: 16),
+      label: const Text('Watch ad for hint'),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: const Color(0xFF69F0AE),
+        side: const BorderSide(color: Color(0xFF69F0AE)),
       ),
     );
   }
