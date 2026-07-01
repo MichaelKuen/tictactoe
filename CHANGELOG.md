@@ -7,6 +7,27 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.0.0] — 2026-07-01 — Milestone 09: Custom App Icon + Splash Screen
+
+### Added
+- `assets/icon/app_icon.png` — 1024×1024 custom launcher icon: dark navy background
+  (`#1A1A2E`), white 3×3 grid, vivid red X (`#FF5252`) top-left and bottom-right,
+  sky-blue O (`#40C4FF`) centre
+- `assets/splash/splash_logo.png` — centred icon on navy background for splash use
+- `flutter_launcher_icons: ^0.14.4` dev dependency — generates Android mipmap + iOS
+  `AppIcon.appiconset` from the single source PNG
+- `flutter_native_splash: ^2.4.7` dev dependency — generates Android 12 `launch_background`
+  XML, pre-API-31 drawables, iOS launch image, and night-mode variants; all set to dark
+  navy background with centred logo
+- `remove_alpha_ios: true` in launcher icons config — meets Apple App Store requirement
+  (no alpha channel in iOS icons)
+
+### Generation commands
+```
+dart run flutter_launcher_icons
+dart run flutter_native_splash:create
+```
+
 ## [0.9.0] — 2026-07-01 — Milestone 08: AI Difficulty + Release Prep
 
 ### Added

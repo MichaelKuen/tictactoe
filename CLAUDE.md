@@ -53,7 +53,8 @@ The `.dart_tool/` directory is generated — do NOT add headers there.
 | 05 | milestone/05-admob            | Google AdMob integration (banner, interstitial, rewarded) | ✅ Complete (confirmed 2026-07-01) |
 | 06 | milestone/06-polish           | Animations, sound, theming           | ✅ Complete (confirmed 2026-07-01) |
 | 07 | milestone/07-games-hub        | Games Hub bottom sheet + Play Store links | ✅ Complete (confirmed 2026-07-01) |
-| 08 | milestone/08-release-prep     | AI difficulty levels + release prep         | ⏳ In progress |
+| 08 | milestone/08-release-prep     | AI difficulty levels + release prep         | ✅ Complete (confirmed 2026-07-01) |
+| 09 | milestone/09-app-icon-splash  | Custom app icon + native splash screen      | ⏳ In progress |
 
 ---
 

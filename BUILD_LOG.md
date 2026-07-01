@@ -4,6 +4,84 @@ All commands run during development, with exact output. Nothing summarised.
 
 ---
 
+## Milestone 09 — Custom App Icon + Splash Screen
+
+**Date:** 2026-07-01
+**Branch:** milestone/09-app-icon-splash
+**Flutter:** 3.41.4 | **Dart:** 3.11.1
+
+### New / changed files
+
+```
+assets/icon/app_icon.png            — NEW: 1024×1024 custom launcher icon (Python/Pillow)
+assets/splash/splash_logo.png       — NEW: centred icon on navy background for splash
+pubspec.yaml                        — flutter_launcher_icons + flutter_native_splash config
+android/app/src/main/res/           — generated mipmap-* icon sets, launch_background XML files
+android/app/src/main/res/values*/   — styles.xml files for Android 12 splash
+ios/Runner/Assets.xcassets/         — AppIcon.appiconset generated
+ios/Runner/Info.plist               — updated by flutter_native_splash
+```
+
+### Icon generation (Python/Pillow)
+
+```python
+# 1024×1024, navy bg #1A1A2E, grid #5A5A7A, X #FF5252, O #40C4FF
+# Output: assets/icon/app_icon.png + assets/splash/splash_logo.png
+```
+
+### flutter pub add (dev dependencies)
+
+```
++ flutter_launcher_icons 0.14.4
++ flutter_native_splash 2.4.7
++ image 4.8.0
+(+ 16 other transitive packages)
+```
+
+### dart run flutter_launcher_icons
+
+```
+• Creating default icons Android
+• Overwriting the default Android launcher icon with a new icon
+• Overwriting default iOS launcher icon with new icon
+✓ Successfully generated launcher icons
+```
+
+### dart run flutter_native_splash:create
+
+```
+[Android] Creating default splash images
+[Android] Creating dark mode splash images
+[Android] Creating default android12splash images
+[Android] Creating dark mode android12splash images
+[Android] Updating launch background(s) with splash image path...
+[Android] Updating styles...
+[Android] Creating android/app/src/main/res/values-v31/styles.xml
+[Android] Creating android/app/src/main/res/values-night-v31/styles.xml
+[iOS] Creating images
+[iOS] Creating dark mode images
+[iOS] Updating ios/Runner/Info.plist for status bar hidden/visible
+✅ Native splash complete.
+```
+
+### flutter analyze
+
+```
+No issues found! (ran in 1.6s)
+```
+
+**Result: PASS — zero issues**
+
+### flutter test
+
+```
++80: All tests passed!
+```
+
+**Result: PASS — 80/80**
+
+---
+
 ## Milestone 08 — AI Difficulty + Release Prep
 
 **Date:** 2026-07-01
