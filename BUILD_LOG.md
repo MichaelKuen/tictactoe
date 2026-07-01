@@ -4,6 +4,45 @@ All commands run during development, with exact output. Nothing summarised.
 
 ---
 
+## Milestone 06 — Polish
+
+**Date:** 2026-07-01
+**Branch:** milestone/06-polish
+**Flutter:** 3.41.4 | **Dart:** 3.11.1
+
+### New / changed files
+
+```
+lib/theme_notifier.dart         — NEW: global ValueNotifier<ThemeMode>
+lib/main.dart                   — split into _lightTheme / _darkTheme; ValueListenableBuilder
+lib/ui/cell_widget.dart         — StatefulWidget; bounce animation + winning pulse animation
+lib/ui/game_screen.dart         — haptic feedback; status AnimatedSwitcher; theme toggle AppBar button
+test/ui/game_screen_test.dart   — test wrapper forced to Brightness.dark
+```
+
+### flutter analyze
+
+```
+No issues found! (ran in 1.3s)
+```
+
+**Result: PASS — zero issues**
+
+### flutter test
+
+```
++76: All tests passed!
+```
+
+**Result: PASS — 76/76**
+
+### Investigation note
+`AnimatedSwitcher` on the board widget (keyed by `_boardKey`) was trialled but caused
+duplicate-key finder errors in tests and deactivated-ancestor ticker errors during
+`AnimatedSwitcher` transitions. Removed; cell-level animations provide equivalent feedback.
+
+---
+
 ## Milestone 05 — AdMob Docs Update
 
 **Date:** 2026-07-01

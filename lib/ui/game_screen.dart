@@ -3,12 +3,14 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../ads/ad_manager.dart';
 import '../game/ai.dart';
 import '../game/game.dart';
 import '../game/game_status.dart';
 import '../game/player.dart';
+import '../theme_notifier.dart';
 import 'board_widget.dart';
 
 class GameScreen extends StatefulWidget {
@@ -24,8 +26,6 @@ class _GameScreenState extends State<GameScreen> {
   bool _aiThinking = false;
   Timer? _aiTimer;
   int? _hintCell;
-
-  // Banner ad — managed here so it is tied to this widget's lifecycle.
   BannerAd? _bannerAd;
   bool _bannerLoaded = false;
 
@@ -34,7 +34,6 @@ class _GameScreenState extends State<GameScreen> {
       (defaultTargetPlatform == TargetPlatform.android ||
           defaultTargetPlatform == TargetPlatform.iOS);
 
-  // Google test banner ID — replace with real ID before release.
   static const String _bannerAdUnitId =
       'ca-app-pub-3940256099942544/6300978111';
 
@@ -72,11 +71,15 @@ class _GameScreenState extends State<GameScreen> {
 
   void _onCellTap(int index) {
     if (_aiThinking) return;
+    HapticFeedback.selectionClick();
     setState(() {
       _hintCell = null;
       _game = _game.move(index);
     });
     if (_game.isOver) {
+      _game.status == GameStatus.draw
+          ? HapticFeedback.lightImpact()
+          : HapticFeedback.mediumImpact();
       AdManager.instance.onGameEnded();
     } else if (_isAiTurn) {
       _scheduleAiMove();
@@ -87,11 +90,15 @@ class _GameScreenState extends State<GameScreen> {
     setState(() => _aiThinking = true);
     _aiTimer = Timer(const Duration(milliseconds: 300), () {
       if (!mounted) return;
+      HapticFeedback.selectionClick();
       setState(() {
         _game = _game.move(AiPlayer.bestMove(_game.board, Player.o));
         _aiThinking = false;
       });
-      if (_game.isOver) AdManager.instance.onGameEnded();
+      if (_game.isOver) {
+        HapticFeedback.mediumImpact();
+        AdManager.instance.onGameEnded();
+      }
     });
   }
 
@@ -102,6 +109,7 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _reset() {
+    HapticFeedback.lightImpact();
     setState(() {
       _cancelAiTimer();
       _hintCell = null;
@@ -169,6 +177,18 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
+  Widget _buildStatus(BuildContext context, ThemeData theme) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 250),
+      child: Text(
+        _statusText,
+        key: ValueKey(_statusText),
+        style: theme.textTheme.headlineMedium,
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
   Widget _buildNarrowLayout(BuildContext context, bool boardEnabled) {
     final theme = Theme.of(context);
     return Padding(
@@ -185,7 +205,7 @@ class _GameScreenState extends State<GameScreen> {
             onSelectionChanged: (s) => _setMode(s.first),
           ),
           const SizedBox(height: 24),
-          Text(_statusText, style: theme.textTheme.headlineMedium),
+          _buildStatus(context, theme),
           const SizedBox(height: 16),
           _buildBoard(boardEnabled),
           const SizedBox(height: 16),
@@ -201,7 +221,12 @@ class _GameScreenState extends State<GameScreen> {
 
   Widget _buildWideLayout(BuildContext context, bool boardEnabled) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     const sidebarWidth = 180.0;
+    final sidebarColor =
+        isDark ? const Color(0xFF252540) : const Color(0xFFEEEEEE);
+    final sidebarBorderColor =
+        isDark ? const Color(0xFF5A5A7A) : const Color(0xFFCCCCCC);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -213,7 +238,7 @@ class _GameScreenState extends State<GameScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(_statusText, style: theme.textTheme.headlineMedium),
+                _buildStatus(context, theme),
                 const SizedBox(height: 24),
                 _buildBoard(boardEnabled),
               ],
@@ -222,9 +247,10 @@ class _GameScreenState extends State<GameScreen> {
         ),
         Container(
           width: sidebarWidth,
-          decoration: const BoxDecoration(
-            color: Color(0xFF252540),
-            border: Border(left: BorderSide(color: Color(0xFF5A5A7A))),
+          decoration: BoxDecoration(
+            color: sidebarColor,
+            border: Border(
+                left: BorderSide(color: sidebarBorderColor)),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
           child: Column(
@@ -251,7 +277,7 @@ class _GameScreenState extends State<GameScreen> {
                 onTap: () => _setMode(false),
               ),
               const SizedBox(height: 32),
-              const Divider(color: Color(0xFF5A5A7A)),
+              Divider(color: sidebarBorderColor),
               const SizedBox(height: 32),
               FilledButton(onPressed: _reset, child: const Text('New Game')),
               if (_canHint) ...[
@@ -267,7 +293,11 @@ class _GameScreenState extends State<GameScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final boardEnabled = !_game.isOver && !_aiThinking && !_isAiTurn;
+    final appBarColor =
+        isDark ? const Color(0xFF252540) : const Color(0xFFEEEEEE);
 
     Widget? bannerWidget;
     if (_bannerLoaded && _bannerAd != null) {
@@ -281,7 +311,17 @@ class _GameScreenState extends State<GameScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tic Tac Toe'),
-        backgroundColor: const Color(0xFF252540),
+        backgroundColor: appBarColor,
+        actions: [
+          IconButton(
+            tooltip: isDark ? 'Switch to light mode' : 'Switch to dark mode',
+            icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
+            onPressed: () {
+              themeNotifier.value =
+                  isDark ? ThemeMode.light : ThemeMode.dark;
+            },
+          ),
+        ],
       ),
       bottomNavigationBar: bannerWidget,
       body: SafeArea(
