@@ -183,6 +183,23 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## AdMob
+
+The app contains Google AdMob integration (milestone 05). All ad unit IDs currently in code
+are **Google test IDs** — they are safe to commit and will never generate real revenue.
+
+Before submitting to the Play Store / App Store, follow the full step-by-step instructions in
+**[docs/admob_setup_guide.md](docs/admob_setup_guide.md)** to:
+
+1. Create a real AdMob account and register the app
+2. Create Banner, Interstitial, and Rewarded ad units
+3. Replace test IDs in `lib/ads/ad_manager.dart`, `lib/ui/game_screen.dart`, and
+   `android/app/src/main/AndroidManifest.xml`
+4. Add the iOS App ID to `ios/Runner/Info.plist` (iOS target only)
+5. Set up payment in AdMob
+
+---
+
 ## Do Not
 
 - Do not commit to `main` directly.
@@ -190,3 +207,6 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Do not add third-party packages without noting them in `CHANGELOG.md`.
 - Do not remove the copyright header from any `.dart` file.
 - Do not add emoji to code files.
+- Do not replace test ad unit IDs with real IDs without also updating `AndroidManifest.xml`
+  and (for iOS) `Info.plist` — mismatched IDs cause ads to silently fail.
+- Do not click your own ads during testing — AdMob will suspend the account.

@@ -43,10 +43,15 @@ GameScreen
 
 ## Before releasing to production
 
+Full step-by-step instructions are in **[admob_setup_guide.md](admob_setup_guide.md)**.
+That guide covers account creation, ad unit setup, replacing all test IDs, iOS `Info.plist`
+configuration, payment setup, and AdMob policy rules.
+
+Quick checklist:
 1. Create a real AdMob account at admob.google.com
 2. Register the app and create three ad units (Banner, Interstitial, Rewarded)
-3. Replace all test IDs above with the real unit IDs
-4. Replace the test App ID in `AndroidManifest.xml` with the real App ID
+3. Replace all test IDs in code with real unit IDs — see the guide for exact file locations
+4. Replace the test App ID in `AndroidManifest.xml`
 5. Add real iOS App ID to `ios/Runner/Info.plist` under `GADApplicationIdentifier`
 
 ## Notes

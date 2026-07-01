@@ -4,6 +4,23 @@ All commands run during development, with exact output. Nothing summarised.
 
 ---
 
+## Milestone 05 — AdMob Docs Update
+
+**Date:** 2026-07-01
+**Branch:** milestone/05-admob (post-merge docs update on main)
+
+### Files updated
+
+```
+docs/admob_setup_guide.md   — NEW: full production setup walkthrough (account, units, IDs, payment, policies)
+README.md                   — updated project structure, added AdMob section with link to setup guide
+CLAUDE.md                   — added AdMob section + two new Do Not rules
+docs/milestone_05_admob.md  — updated "Before releasing" section to link to setup guide
+CHANGELOG.md                — added setup guide reference in [0.6.0] notes
+```
+
+---
+
 ## Milestone 05 — AdMob Integration
 
 **Date:** 2026-07-01

@@ -28,6 +28,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Notes
 - All ad unit IDs are Google's official **test IDs** — swap for real IDs before release
 - Ads are suppressed on Web and Windows (`kIsWeb` / `defaultTargetPlatform` guard)
+- See [docs/admob_setup_guide.md](docs/admob_setup_guide.md) for the full production setup walkthrough
 
 ## [0.5.0] — 2026-07-01 — Milestone 04: AI Player & UI Polish
 
