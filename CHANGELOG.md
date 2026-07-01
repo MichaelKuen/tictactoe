@@ -7,6 +7,28 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.2.0] — 2026-07-01 — Milestone 11: Score Tracking
+
+### Added
+- `lib/game/score.dart` — immutable `Score` data class (xWins, oWins, draws) with
+  `copyWithXWin()`, `copyWithOWin()`, `copyWithDraw()`, and `reset` getter
+- `lib/game/score_repository.dart` — `ScoreRepository` backed by `shared_preferences`;
+  tracks vs-AI and vs-Human scores independently across sessions; `saveAiScore`,
+  `saveHumanScore`, `resetAll`
+- `lib/ui/score_widget.dart` — `ScoreWidget`: animated three-column scoreboard
+  (YOU/X | DRAW | AI/O) with labels driven by current game mode; reset icon button;
+  `AnimatedSwitcher` on score numbers for smooth count transitions
+- `shared_preferences: ^2.3.2` runtime dependency
+- `test/game/score_test.dart` — 7 unit tests covering Score immutability, increment
+  methods, chaining, and reset
+
+### Changed
+- `lib/ui/game_screen.dart` — loads `ScoreRepository` async in `initState`;
+  calls `_recordResult()` after every game-over (both player and AI moves);
+  `ScoreWidget` displayed in narrow layout (between difficulty selector and status)
+  and in wide sidebar (below New Game button); `_resetScores()` clears both
+  in-memory scores and persisted preferences
+
 ## [1.1.0] — 2026-07-01 — Milestone 10: Health Awareness Timer
 
 ### Added
