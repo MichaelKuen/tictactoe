@@ -12,6 +12,7 @@ import '../game/game_status.dart';
 import '../game/player.dart';
 import '../theme_notifier.dart';
 import 'board_widget.dart';
+import 'games_sheet.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -284,6 +285,17 @@ class _GameScreenState extends State<GameScreen> {
                 const SizedBox(height: 8),
                 _HintButton(onTap: _onHintTapped),
               ],
+              const SizedBox(height: 24),
+              Divider(color: sidebarBorderColor),
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed: () => GamesSheet.show(context),
+                icon: const Icon(Icons.sports_esports, size: 16),
+                label: const Text('More Games'),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: sidebarBorderColor),
+                ),
+              ),
             ],
           ),
         ),
@@ -313,6 +325,11 @@ class _GameScreenState extends State<GameScreen> {
         title: const Text('Tic Tac Toe'),
         backgroundColor: appBarColor,
         actions: [
+          IconButton(
+            tooltip: 'More Games',
+            icon: const Icon(Icons.sports_esports),
+            onPressed: () => GamesSheet.show(context),
+          ),
           IconButton(
             tooltip: isDark ? 'Switch to light mode' : 'Switch to dark mode',
             icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),

@@ -7,6 +7,26 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.8.0] — 2026-07-01 — Milestone 07: Games Hub
+
+### Added
+- `lib/games/game_entry.dart` — `GameEntry` data class (`name`, `tagline`, `icon`, `iconColor`,
+  `playStoreId?`, `isCurrent`); computed `isReleased` and `playStoreUrl`
+- `lib/games/games_catalog.dart` — `fullStackShackGames` list (Tic Tac Toe current + coming-soon
+  placeholder) and `devPageUrl` pointing to FullStackShack's Google Play developer page
+- `lib/ui/games_sheet.dart` — `GamesSheet` draggable bottom sheet (65 % initial height);
+  `DraggableScrollableSheet` with `_GameCard` rows (icon bubble + name/tagline + action badge),
+  "View all on Google Play" footer button, house-ads disclosure text
+- `url_launcher: ^6.3.2` dependency for opening Play Store links
+- `Icons.sports_esports` AppBar button → opens `GamesSheet` (narrow and wide layouts)
+- "More Games" `OutlinedButton.icon` in wide sidebar → also opens `GamesSheet`
+- HTTPS intent query added to `AndroidManifest.xml` for `url_launcher`
+
+### Notes
+- Tic Tac Toe card shows a "Playing" badge; coming-soon games show "Soon" badge; released
+  external games show a "Play" `FilledButton` that deep-links to their Play Store listing
+- House-ads note at the bottom of the sheet informs users why FullStackShack ads may appear
+
 ## [0.7.0] — 2026-07-01 — Milestone 06: Polish
 
 ### Added
