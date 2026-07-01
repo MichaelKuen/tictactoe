@@ -4,6 +4,40 @@ All commands run during development, with exact output. Nothing summarised.
 
 ---
 
+## Milestone 08 — AI Difficulty + Release Prep
+
+**Date:** 2026-07-01
+**Branch:** milestone/08-release-prep
+**Flutter:** 3.41.4 | **Dart:** 3.11.1
+
+### New / changed files
+
+```
+lib/game/difficulty.dart        — NEW: Difficulty enum (easy, medium, hard)
+lib/game/ai.dart                — AiPlayer.move() wrapping bestMove() per difficulty
+lib/ui/game_screen.dart         — _difficulty state; difficulty selector narrow + sidebar;
+                                   SingleChildScrollView on sidebar column
+test/game/ai_test.dart          — 4 new difficulty tests
+```
+
+### flutter analyze
+
+```
+No issues found! (ran in 1.5s)
+```
+
+**Result: PASS — zero issues**
+
+### flutter test
+
+```
++80: All tests passed!
+```
+
+**Result: PASS — 80/80**
+
+---
+
 ## Milestone 07 — Games Hub
 
 **Date:** 2026-07-01
