@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../games/game_entry.dart';
 import '../games/games_catalog.dart';
+import 'privacy_policy_screen.dart';
 
 class GamesSheet extends StatelessWidget {
   const GamesSheet({super.key});
@@ -105,6 +106,21 @@ class GamesSheet extends StatelessWidget {
                             .withValues(alpha: 0.4),
                       ),
                       textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    GestureDetector(
+                      onTap: () => PrivacyPolicyScreen.show(context),
+                      child: Text(
+                        'Privacy Policy',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.primary
+                              .withValues(alpha: 0.8),
+                          decoration: TextDecoration.underline,
+                          decorationColor: theme.colorScheme.primary
+                              .withValues(alpha: 0.8),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ],
                 ),

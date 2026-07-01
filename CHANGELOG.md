@@ -7,6 +7,24 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.3.0] — 2026-07-01 — Milestone 12: Privacy Policy
+
+### Added
+- `lib/ui/privacy_policy_screen.dart` — two-tab privacy policy screen:
+  - **Summary tab**: six illustrated cards covering What We Collect, Ads & Advertising ID,
+    Data Stays on Device, Children's Privacy, Your Controls, and Contact Us
+  - **Full Policy tab**: complete legal text across eight numbered sections —
+    Introduction, Information We Collect (four sub-sections), How We Use Your Information,
+    Third-Party Services (Google AdMob), Data Retention, Children's Privacy, Your Rights
+    (General / GDPR / CCPA), Changes, and Contact with mailto: button
+  - Effective date banner and direct email button on the Full Policy tab
+
+### Changed
+- `lib/ui/game_screen.dart` — added `privacy_tip_outlined` icon button to AppBar
+  that opens `PrivacyPolicyScreen`
+- `lib/ui/games_sheet.dart` — added "Privacy Policy" underlined link in the Games Hub
+  footer (below the house-ads disclosure text)
+
 ## [1.2.0] — 2026-07-01 — Milestone 11: Score Tracking
 
 ### Added
