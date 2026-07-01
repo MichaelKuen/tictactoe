@@ -7,6 +7,28 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-07-01 — Milestone 10: Health Awareness Timer
+
+### Added
+- `lib/health/session_timer.dart` — `SessionTimer` ChangeNotifier with 4-state `HealthState` enum:
+  safe, warning, eyeBreakDue, sessionLimitDue; aligned to 20-20-20 rule (AOA) + WHO/NHS 60-min
+  session guidelines; warning zone fires 5 min before each break
+- `lib/ui/session_bar_widget.dart` — compact health bar above the game board: shows elapsed play
+  time and countdown to next break; `AnimatedContainer` colour transitions (green → amber → red);
+  `_PulsingDot` animation when warning state
+- `test/health/session_timer_test.dart` — 10 unit tests covering initial state, health state
+  transitions, shouldFireEyeBreak / shouldFireSessionLimit flags, acknowledge / dismiss flow,
+  formatDuration, and constant values
+
+### Changed
+- `lib/ui/game_screen.dart` — integrated `SessionTimer` via `addListener(_onTimerTick)`;
+  20-min eye-break snackbar (amber, 8 s duration, 20-20-20 instructions); 60-min session-limit
+  dialog (non-dismissible, "Take a break" resets timer, "Continue anyway" marks seen); body
+  wrapped in `Column([SessionBarWidget, Expanded(LayoutBuilder)])`;
+  reduced wide-layout sidebar spacers around "New Game" button so it stays within viewport
+- `lib/ui/cell_widget.dart` — changed `_placeCtrl.value = 0` to `_placeCtrl.stop(); _placeCtrl.reset()`
+  in `didUpdateWidget` when player is cleared (avoids listener notification during reconciliation)
+
 ## [1.0.0] — 2026-07-01 — Milestone 09: Custom App Icon + Splash Screen
 
 ### Added

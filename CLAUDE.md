@@ -54,7 +54,8 @@ The `.dart_tool/` directory is generated — do NOT add headers there.
 | 06 | milestone/06-polish           | Animations, sound, theming           | ✅ Complete (confirmed 2026-07-01) |
 | 07 | milestone/07-games-hub        | Games Hub bottom sheet + Play Store links | ✅ Complete (confirmed 2026-07-01) |
 | 08 | milestone/08-release-prep     | AI difficulty levels + release prep         | ✅ Complete (confirmed 2026-07-01) |
-| 09 | milestone/09-app-icon-splash  | Custom app icon + native splash screen      | ⏳ In progress |
+| 09 | milestone/09-app-icon-splash  | Custom app icon + native splash screen      | ✅ Complete (confirmed 2026-07-01) |
+| 10 | milestone/10-health-timer     | Health awareness session timer + break reminders | ✅ Complete (confirmed 2026-07-01) |
 
 ---
 

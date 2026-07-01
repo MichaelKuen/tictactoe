@@ -60,7 +60,8 @@ class _CellWidgetState extends State<CellWidget> with TickerProviderStateMixin {
       _pulseCtrl.animateTo(0, duration: const Duration(milliseconds: 200));
     }
     if (widget.player == null && old.player != null) {
-      _placeCtrl.value = 0;
+      _placeCtrl.stop();
+      _placeCtrl.reset();
     }
   }
 

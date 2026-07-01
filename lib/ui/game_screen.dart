@@ -11,9 +11,11 @@ import '../game/difficulty.dart';
 import '../game/game.dart';
 import '../game/game_status.dart';
 import '../game/player.dart';
+import '../health/session_timer.dart';
 import '../theme_notifier.dart';
 import 'board_widget.dart';
 import 'games_sheet.dart';
+import 'session_bar_widget.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -31,6 +33,9 @@ class _GameScreenState extends State<GameScreen> {
   int? _hintCell;
   BannerAd? _bannerAd;
   bool _bannerLoaded = false;
+  final _sessionTimer = SessionTimer();
+  bool _eyeBreakShown = false;
+  bool _sessionLimitShown = false;
 
   static bool get _adsSupported =>
       !kIsWeb &&
@@ -44,6 +49,8 @@ class _GameScreenState extends State<GameScreen> {
   void initState() {
     super.initState();
     _loadBanner();
+    _sessionTimer.start();
+    _sessionTimer.addListener(_onTimerTick);
   }
 
   void _loadBanner() {
@@ -64,9 +71,94 @@ class _GameScreenState extends State<GameScreen> {
 
   @override
   void dispose() {
+    _sessionTimer.removeListener(_onTimerTick);
+    _sessionTimer.dispose();
     _bannerAd?.dispose();
     _aiTimer?.cancel();
     super.dispose();
+  }
+
+  void _onTimerTick() {
+    if (!mounted) return;
+    if (_sessionTimer.shouldFireEyeBreak && !_eyeBreakShown) {
+      _eyeBreakShown = true;
+      _sessionTimer.acknowledgeEyeBreak();
+      _showEyeBreakSnackBar();
+    }
+    if (_sessionTimer.shouldFireSessionLimit && !_sessionLimitShown) {
+      _sessionLimitShown = true;
+      _showSessionLimitDialog();
+    }
+  }
+
+  void _showEyeBreakSnackBar() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 8),
+        backgroundColor: const Color(0xFF3A2D0A),
+        content: Row(
+          children: const [
+            Icon(Icons.visibility_outlined, color: Color(0xFFFFD740), size: 20),
+            SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                '20-20-20 eye break — look at something 20 feet away for 20 seconds.',
+                style: TextStyle(color: Color(0xFFFFD740)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showSessionLimitDialog() {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1A2E),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.health_and_safety, color: Color(0xFFFF5252), size: 28),
+            SizedBox(width: 10),
+            Text('Time for a break!',
+                style: TextStyle(color: Color(0xFFFF5252))),
+          ],
+        ),
+        content: const Text(
+          "You've been playing for 60 minutes.\n\n"
+          "Health guidelines recommend taking a proper break — "
+          "stand up, stretch, and rest your eyes before continuing.",
+          style: TextStyle(color: Colors.white70, height: 1.5),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _sessionTimer.dismissSessionLimit();
+            },
+            child: const Text('Continue anyway',
+                style: TextStyle(color: Colors.white38)),
+          ),
+          FilledButton.icon(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _eyeBreakShown = false;
+              _sessionLimitShown = false;
+              _sessionTimer.acknowledgeSessionLimit();
+            },
+            icon: const Icon(Icons.self_improvement, size: 18),
+            label: const Text('Take a break'),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFF69F0AE),
+              foregroundColor: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   bool get _isAiTurn =>
@@ -327,15 +419,15 @@ class _GameScreenState extends State<GameScreen> {
                   ),
                 ),
               ],
-              const SizedBox(height: 32),
+              const SizedBox(height: 8),
               Divider(color: sidebarBorderColor),
-              const SizedBox(height: 32),
+              const SizedBox(height: 8),
               FilledButton(onPressed: _reset, child: const Text('New Game')),
               if (_canHint) ...[
                 const SizedBox(height: 8),
                 _HintButton(onTap: _onHintTapped),
               ],
-              const SizedBox(height: 24),
+              const SizedBox(height: 8),
               Divider(color: sidebarBorderColor),
               const SizedBox(height: 16),
               OutlinedButton.icon(
@@ -393,13 +485,20 @@ class _GameScreenState extends State<GameScreen> {
       ),
       bottomNavigationBar: bannerWidget,
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            if (constraints.maxWidth >= 600) {
-              return _buildWideLayout(context, boardEnabled);
-            }
-            return _buildNarrowLayout(context, boardEnabled);
-          },
+        child: Column(
+          children: [
+            SessionBarWidget(timer: _sessionTimer),
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  if (constraints.maxWidth >= 600) {
+                    return _buildWideLayout(context, boardEnabled);
+                  }
+                  return _buildNarrowLayout(context, boardEnabled);
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
