@@ -4,6 +4,103 @@ All commands run during development, with exact output. Nothing summarised.
 
 ---
 
+## Milestone 07 — Games Hub
+
+**Date:** 2026-07-01
+**Branch:** milestone/07-games-hub
+**Flutter:** 3.41.4 | **Dart:** 3.11.1
+
+### New / changed files
+
+```
+lib/games/game_entry.dart       — NEW: GameEntry data class
+lib/games/games_catalog.dart    — NEW: fullStackShackGames list + devPageUrl
+lib/ui/games_sheet.dart         — NEW: DraggableScrollableSheet bottom sheet with _GameCard rows
+lib/ui/game_screen.dart         — sports_esports AppBar button + More Games sidebar button
+android/app/src/main/AndroidManifest.xml — HTTPS intent query for url_launcher
+pubspec.yaml                    — url_launcher: ^6.3.2
+```
+
+### flutter pub add url_launcher
+
+```
++ url_launcher 6.3.2
++ url_launcher_android 6.3.30
++ url_launcher_ios 6.3.4
++ url_launcher_linux 3.2.3
++ url_launcher_macos 3.2.3
++ url_launcher_platform_interface 2.3.2
++ url_launcher_web 2.4.1
++ url_launcher_windows 3.1.4
+Changed 8 dependencies!
+```
+
+### flutter analyze (first run — 1 lint issue)
+
+```
+info - Unnecessary use of multiple underscores - lib\ui\games_sheet.dart:83:41 - unnecessary_underscores
+1 issue found. (ran in 1.5s)
+```
+
+**Fix:** Changed `separatorBuilder: (_, __) =>` to `separatorBuilder: (context, index) =>`
+
+### flutter analyze (after fix)
+
+```
+No issues found! (ran in 1.3s)
+```
+
+**Result: PASS — zero issues**
+
+### flutter test
+
+```
++76: All tests passed!
+```
+
+**Result: PASS — 76/76**
+
+---
+
+## Milestone 06 — Polish
+
+**Date:** 2026-07-01
+**Branch:** milestone/06-polish
+**Flutter:** 3.41.4 | **Dart:** 3.11.1
+
+### New / changed files
+
+```
+lib/theme_notifier.dart         — NEW: global ValueNotifier<ThemeMode>
+lib/main.dart                   — split into _lightTheme / _darkTheme; ValueListenableBuilder
+lib/ui/cell_widget.dart         — StatefulWidget; bounce animation + winning pulse animation
+lib/ui/game_screen.dart         — haptic feedback; status AnimatedSwitcher; theme toggle AppBar button
+test/ui/game_screen_test.dart   — test wrapper forced to Brightness.dark
+```
+
+### flutter analyze
+
+```
+No issues found! (ran in 1.3s)
+```
+
+**Result: PASS — zero issues**
+
+### flutter test
+
+```
++76: All tests passed!
+```
+
+**Result: PASS — 76/76**
+
+### Investigation note
+`AnimatedSwitcher` on the board widget (keyed by `_boardKey`) was trialled but caused
+duplicate-key finder errors in tests and deactivated-ancestor ticker errors during
+`AnimatedSwitcher` transitions. Removed; cell-level animations provide equivalent feedback.
+
+---
+
 ## Milestone 05 — AdMob Docs Update
 
 **Date:** 2026-07-01

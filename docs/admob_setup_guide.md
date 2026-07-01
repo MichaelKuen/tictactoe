@@ -4,7 +4,8 @@ This guide walks you through replacing the Google **test** ad unit IDs with your
 IDs before publishing the app. Complete every step in order.
 
 > **Related files:** See [milestone_05_admob.md](milestone_05_admob.md) for the technical
-> implementation details and [CHANGELOG.md](../CHANGELOG.md) for what was added in v0.6.0.
+> implementation details, [milestone_07_games_hub.md](milestone_07_games_hub.md) for the Games Hub
+> (cross-promotion), and [CHANGELOG.md](../CHANGELOG.md) for what changed in each version.
 
 ---
 
@@ -176,6 +177,38 @@ both platforms — split into two constants if the IDs differ).
 | **Revenue split** | Google keeps ~32 %; you receive ~68 % of ad revenue |
 | **Payment threshold** | $100 minimum before Google pays out |
 | **Review cycle** | Ads may show house ads (unpaid) for 24–48 h after going live |
+
+---
+
+## House Ads — free cross-promotion between your own apps
+
+AdMob **House Ads** let you advertise your other games inside this app for free — no cost, no
+revenue share. They fill unsold inventory and help you grow your portfolio without relying on
+third-party advertisers.
+
+### How it works
+
+1. In the AdMob dashboard go to **Campaigns → Create campaign**.
+2. Select **House ad** as the campaign type.
+3. Upload a banner or interstitial creative promoting your next game (icon, tagline, Play Store link).
+4. Set the campaign to run in `com.fullstackshack.tictactoe` ad units.
+5. Set the eCPM floor to `$0.00` — house ads fill only when no paying ad wins the auction.
+
+### Games Hub integration
+
+The **Games Hub** bottom sheet (`lib/ui/games_sheet.dart`) already shows your other games
+in-app at zero cost without AdMob. Use house ads as a complementary channel:
+
+| Channel | When it shows | Cost |
+|---|---|---|
+| Games Hub sheet | User taps `sports_esports` icon or "More Games" button | Free, always visible |
+| House ad (banner) | When banner ad auction has no paid winner | Free, AdMob-served |
+| House ad (interstitial) | When interstitial slot has no paid winner | Free, AdMob-served |
+
+### Tips
+- Design house ad creatives at the same size as your real ads (320×50 for banner, full-screen for interstitial).
+- Once your second game is on the Play Store, add its `playStoreId` to `games_catalog.dart` — the Games Hub card automatically shows a "Play" button that deep-links to it.
+- House ads count toward your **AdMob impression metrics** but generate $0 revenue — they do not affect your account standing.
 
 ---
 

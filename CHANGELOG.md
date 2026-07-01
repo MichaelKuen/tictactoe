@@ -7,6 +7,56 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.8.0] — 2026-07-01 — Milestone 07: Games Hub
+
+### Added
+- `lib/games/game_entry.dart` — `GameEntry` data class (`name`, `tagline`, `icon`, `iconColor`,
+  `playStoreId?`, `isCurrent`); computed `isReleased` and `playStoreUrl`
+- `lib/games/games_catalog.dart` — `fullStackShackGames` list (Tic Tac Toe current + coming-soon
+  placeholder) and `devPageUrl` pointing to FullStackShack's Google Play developer page
+- `lib/ui/games_sheet.dart` — `GamesSheet` draggable bottom sheet (65 % initial height);
+  `DraggableScrollableSheet` with `_GameCard` rows (icon bubble + name/tagline + action badge),
+  "View all on Google Play" footer button, house-ads disclosure text
+- `url_launcher: ^6.3.2` dependency for opening Play Store links
+- `Icons.sports_esports` AppBar button → opens `GamesSheet` (narrow and wide layouts)
+- "More Games" `OutlinedButton.icon` in wide sidebar → also opens `GamesSheet`
+- HTTPS intent query added to `AndroidManifest.xml` for `url_launcher`
+
+### Notes
+- Tic Tac Toe card shows a "Playing" badge; coming-soon games show "Soon" badge; released
+  external games show a "Play" `FilledButton` that deep-links to their Play Store listing
+- House-ads note at the bottom of the sheet informs users why FullStackShack ads may appear
+
+## [0.7.0] — 2026-07-01 — Milestone 06: Polish
+
+### Added
+- `lib/theme_notifier.dart` — global `ValueNotifier<ThemeMode>` shared between `main.dart`
+  and `GameScreen`
+- **Light / dark theme toggle** — sun/moon icon button in the AppBar; persists for the session
+- **Light theme** — deep red X (`#D32F2F`), deep blue O (`#1565C0`), off-white background;
+  fully contrasting on both themes
+- **Cell bounce animation** — `CellWidget` is now a `StatefulWidget` with two
+  `AnimationController`s: piece placement scales in with `Curves.elasticOut` (400 ms bounce)
+- **Winning cell pulse** — highlighted cells gently scale 1.0 → 1.05 and back on a 700 ms
+  repeat (`Curves.easeInOut`)
+- **Status text crossfade** — `AnimatedSwitcher` wraps the status text; changes fade out/in
+  over 250 ms
+- **Haptic feedback** — `HapticFeedback.selectionClick()` on every move (player and AI);
+  `lightImpact` on draw; `mediumImpact` on win
+- `_darkTheme` / `_lightTheme` split in `main.dart`; `MaterialApp` consumes both via
+  `themeMode`
+- Sidebar border and background are now theme-aware (dark navy in dark mode, light grey in
+  light mode)
+
+### Changed
+- `CellWidget` — converted `StatelessWidget` → `StatefulWidget`; controllers initialised in
+  `initState()` (not lazily) to avoid deactivated-ancestor errors during `AnimatedSwitcher`
+  transitions
+- `CellWidget` cell background is now `Colors.white` in light mode, `Color(0xFF252540)` in
+  dark mode (`isDark` check)
+- `test/ui/game_screen_test.dart` — test wrapper now forces `Brightness.dark` so existing
+  colour assertions remain valid
+
 ## [0.6.0] — 2026-07-01 — Milestone 05: AdMob Integration
 
 ### Added

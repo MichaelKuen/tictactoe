@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tictactoe/ui/game_screen.dart';
 
-Widget _wrap(Widget child) => MaterialApp(home: child);
+Widget _wrap(Widget child) => MaterialApp(
+      theme: ThemeData(brightness: Brightness.dark),
+      home: child,
+    );
 
 Finder _cell(int index) => find.byKey(ValueKey('cell_$index'));
 
