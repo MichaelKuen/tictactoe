@@ -17,6 +17,7 @@ import '../health/session_timer.dart';
 import '../theme_notifier.dart';
 import 'board_widget.dart';
 import 'games_sheet.dart';
+import 'privacy_policy_screen.dart';
 import 'score_widget.dart';
 import 'session_bar_widget.dart';
 
@@ -540,6 +541,11 @@ class _GameScreenState extends State<GameScreen> {
             tooltip: 'More Games',
             icon: const Icon(Icons.sports_esports),
             onPressed: () => GamesSheet.show(context),
+          ),
+          IconButton(
+            tooltip: 'Privacy Policy',
+            icon: const Icon(Icons.privacy_tip_outlined),
+            onPressed: () => PrivacyPolicyScreen.show(context),
           ),
           IconButton(
             tooltip: isDark ? 'Switch to light mode' : 'Switch to dark mode',

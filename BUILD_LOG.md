@@ -4,6 +4,32 @@ All commands run during development, with exact output. Nothing summarised.
 
 ---
 
+## Milestone 12 — Privacy Policy
+
+**Date:** 2026-07-01
+**Branch:** milestone/12-privacy-policy
+**Flutter:** 3.41.4 | **Dart:** 3.11.1
+
+### New / changed files
+
+```
+lib/ui/privacy_policy_screen.dart  — NEW: two-tab privacy policy (Summary + Full Policy)
+lib/ui/game_screen.dart            — AppBar privacy_tip_outlined icon button
+lib/ui/games_sheet.dart            — Privacy Policy link in Games Hub footer
+```
+
+### Commands & Output
+
+```
+flutter analyze
+  No issues found! (ran in 1.4s)
+
+flutter test
+  00:02 +98: All tests passed!
+```
+
+---
+
 ## Milestone 11 — Score Tracking
 
 **Date:** 2026-07-01
