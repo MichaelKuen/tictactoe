@@ -4,6 +4,33 @@ All commands run during development, with exact output. Nothing summarised.
 
 ---
 
+## Milestone 13 — Ko-fi Support Button
+
+**Date:** 2026-07-26
+**Branch:** milestone/13-kofi-support
+**Flutter:** 3.41.4 | **Dart:** 3.11.1
+
+### New / changed files
+
+```
+lib/ui/kofi_button.dart                       — NEW: shared KoFiButton widget
+lib/ui/game_screen.dart                       — KoFiButton in narrow layout + wide sidebar
+lib/ui/games_sheet.dart                       — KoFiButton as first footer item in Games Hub sheet
+macos/Flutter/GeneratedPluginRegistrant.swift — auto-updated plugin registrations
+```
+
+### Commands & Output
+
+```
+flutter analyze
+  No issues found! (ran in 1.1s)
+
+flutter test
+  00:01 +98: All tests passed!
+```
+
+---
+
 ## Milestone 12 — Privacy Policy
 
 **Date:** 2026-07-01

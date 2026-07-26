@@ -7,6 +7,21 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.4.0] — 2026-07-26 — Milestone 13: Ko-fi Support Button
+
+### Added
+- `lib/ui/kofi_button.dart` — shared `KoFiButton` widget: full-width `FilledButton` styled with
+  Ko-fi brand blue (`#72A4F2`), coffee icon, opens `https://ko-fi.com/O3A323W17K` via
+  `url_launcher` on all platforms (Android, Web, iOS, macOS, Windows, Linux)
+
+### Changed
+- `lib/ui/game_screen.dart` — `KoFiButton` added to narrow layout (below New Game / Hint) and
+  wide sidebar (below More Games button)
+- `lib/ui/games_sheet.dart` — `KoFiButton` added as the first and most prominent item in the
+  Games Hub sheet footer
+- `macos/Flutter/GeneratedPluginRegistrant.swift` — auto-updated to register
+  `SharedPreferencesPlugin` alongside existing plugins
+
 ## [1.3.0] — 2026-07-01 — Milestone 12: Privacy Policy
 
 ### Added
