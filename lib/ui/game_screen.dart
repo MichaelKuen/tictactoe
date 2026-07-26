@@ -17,6 +17,7 @@ import '../health/session_timer.dart';
 import '../theme_notifier.dart';
 import 'board_widget.dart';
 import 'games_sheet.dart';
+import 'kofi_button.dart';
 import 'privacy_policy_screen.dart';
 import 'score_widget.dart';
 import 'session_bar_widget.dart';
@@ -394,6 +395,8 @@ class _GameScreenState extends State<GameScreen> {
             const SizedBox(height: 8),
             _HintButton(onTap: _onHintTapped),
           ],
+          const SizedBox(height: 12),
+          const KoFiButton(),
         ],
       ),
     );
@@ -507,6 +510,8 @@ class _GameScreenState extends State<GameScreen> {
                   side: BorderSide(color: sidebarBorderColor),
                 ),
               ),
+              const SizedBox(height: 8),
+              const KoFiButton(),
             ],
           ),
           ),

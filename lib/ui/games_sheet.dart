@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../games/game_entry.dart';
 import '../games/games_catalog.dart';
+import 'kofi_button.dart';
 import 'privacy_policy_screen.dart';
 
 class GamesSheet extends StatelessWidget {
@@ -87,12 +88,14 @@ class GamesSheet extends StatelessWidget {
                 ),
               ),
 
-              // Footer: View all + house-ads note
+              // Footer: Ko-fi + View all + house-ads note
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    const KoFiButton(),
+                    const SizedBox(height: 10),
                     OutlinedButton.icon(
                       onPressed: () => _launch(devPageUrl),
                       icon: const Icon(Icons.open_in_new, size: 16),
