@@ -2,6 +2,7 @@
 // Unauthorised use, reproduction, or distribution is strictly prohibited.
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tictactoe/theme_notifier.dart';
@@ -41,6 +42,7 @@ Future<void> _pumpEmbed(WidgetTester tester, Size size,
     theme: theme ?? webLightTheme,
     darkTheme: webDarkTheme,
     themeMode: themeNotifier.value,
+    shortcuts: GameScreen.embedShortcuts,
     home: const GameScreen(embedMode: true),
   ));
   await tester.pumpAndSettle();
@@ -140,6 +142,89 @@ void main() {
       await _pumpEmbed(tester, const Size(390, 844));
       await tester.pump(const Duration(minutes: 61));
       expect(find.text('Time for a break!'), findsNothing);
+    });
+  });
+
+  group('keyboard in embed mode', () {
+    Finder mark(int cell, String p) =>
+        find.descendant(of: _cell(cell), matching: find.text(p));
+
+    Future<void> twoPlayer(WidgetTester tester) async {
+      await _pumpEmbed(tester, const Size(1024, 700));
+      await tester.tap(find.text('vs Human'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('digit keys place marks in reading order', (tester) async {
+      await twoPlayer(tester);
+      await tester.sendKeyEvent(LogicalKeyboardKey.digit1);
+      await tester.sendKeyEvent(LogicalKeyboardKey.digit9);
+      await tester.pump();
+      expect(mark(0, 'X'), findsOneWidget);
+      expect(mark(8, 'O'), findsOneWidget);
+    });
+
+    testWidgets('numpad follows its physical layout', (tester) async {
+      await twoPlayer(tester);
+      await tester.sendKeyEvent(LogicalKeyboardKey.numpad7);
+      await tester.sendKeyEvent(LogicalKeyboardKey.numpad3);
+      await tester.pump();
+      expect(mark(0, 'X'), findsOneWidget);
+      expect(mark(8, 'O'), findsOneWidget);
+    });
+
+    testWidgets('first arrow selects the centre, Enter places',
+        (tester) async {
+      await twoPlayer(tester);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pump();
+      expect(mark(4, 'X'), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pump();
+      expect(mark(0, 'O'), findsOneWidget);
+    });
+
+    testWidgets('keys still work after clicking a button', (tester) async {
+      await _pumpEmbed(tester, const Size(1024, 700));
+      await tester.tap(find.text('Easy'));
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.digit5);
+      await tester.pump();
+      expect(mark(4, 'X'), findsOneWidget);
+      await tester.pump(const Duration(milliseconds: 300));
+      // Enter must place at the cursor, not press the Easy button again
+      // (which would start a new game).
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pump();
+      expect(mark(4, 'X'), findsOneWidget);
+      await tester.pump(const Duration(milliseconds: 300));
+    });
+
+    testWidgets('N starts a new game', (tester) async {
+      await twoPlayer(tester);
+      await tester.sendKeyEvent(LogicalKeyboardKey.digit1);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyN);
+      await tester.pump();
+      expect(mark(0, 'X'), findsNothing);
+      expect(find.text("X's turn"), findsOneWidget);
+    });
+
+    testWidgets('keys are ignored on the mobile screen', (tester) async {
+      tester.view.physicalSize = const Size(480, 900);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(const MaterialApp(home: GameScreen()));
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.digit1);
+      await tester.pump();
+      expect(mark(0, 'X'), findsNothing);
     });
   });
 }

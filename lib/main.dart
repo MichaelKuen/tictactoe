@@ -23,6 +23,7 @@ class TicTacToeApp extends StatelessWidget {
       builder: (context, mode, child) => MaterialApp(
         title: 'Tic Tac Toe',
         themeMode: mode,
+        shortcuts: kIsWeb ? GameScreen.embedShortcuts : null,
         theme: kIsWeb ? webLightTheme : _lightTheme,
         darkTheme: kIsWeb ? webDarkTheme : _darkTheme,
         home: const GameScreen(),

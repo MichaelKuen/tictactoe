@@ -31,6 +31,20 @@ class GameScreen extends StatefulWidget {
 
   const GameScreen({super.key, this.embedMode = kIsWeb});
 
+  /// App shortcuts for embed mode: arrow keys belong to the board cursor, so
+  /// they must not also move focus between buttons or scroll.
+  static Map<ShortcutActivator, Intent> get embedShortcuts => {
+        ...WidgetsApp.defaultShortcuts,
+        const SingleActivator(LogicalKeyboardKey.arrowUp):
+            const DoNothingAndStopPropagationIntent(),
+        const SingleActivator(LogicalKeyboardKey.arrowDown):
+            const DoNothingAndStopPropagationIntent(),
+        const SingleActivator(LogicalKeyboardKey.arrowLeft):
+            const DoNothingAndStopPropagationIntent(),
+        const SingleActivator(LogicalKeyboardKey.arrowRight):
+            const DoNothingAndStopPropagationIntent(),
+      };
+
   @override
   State<GameScreen> createState() => _GameScreenState();
 }
@@ -51,6 +65,32 @@ class _GameScreenState extends State<GameScreen> {
   Score _aiScore = const Score();
   Score _humanScore = const Score();
 
+  /// Keyboard cursor (embed mode only); null until an arrow key is pressed.
+  int? _cursor;
+
+  // Digit row in reading order: 1 = top-left, 9 = bottom-right.
+  static final _digitKeys = <LogicalKeyboardKey, int>{
+    LogicalKeyboardKey.digit1: 0,
+    LogicalKeyboardKey.digit2: 1,
+    LogicalKeyboardKey.digit3: 2,
+    LogicalKeyboardKey.digit4: 3,
+    LogicalKeyboardKey.digit5: 4,
+    LogicalKeyboardKey.digit6: 5,
+    LogicalKeyboardKey.digit7: 6,
+    LogicalKeyboardKey.digit8: 7,
+    LogicalKeyboardKey.digit9: 8,
+    // Numpad matches its physical layout: 7 = top-left, 3 = bottom-right.
+    LogicalKeyboardKey.numpad7: 0,
+    LogicalKeyboardKey.numpad8: 1,
+    LogicalKeyboardKey.numpad9: 2,
+    LogicalKeyboardKey.numpad4: 3,
+    LogicalKeyboardKey.numpad5: 4,
+    LogicalKeyboardKey.numpad6: 5,
+    LogicalKeyboardKey.numpad1: 6,
+    LogicalKeyboardKey.numpad2: 7,
+    LogicalKeyboardKey.numpad3: 8,
+  };
+
   static bool get _adsSupported =>
       !kIsWeb &&
       (defaultTargetPlatform == TargetPlatform.android ||
@@ -63,7 +103,9 @@ class _GameScreenState extends State<GameScreen> {
   void initState() {
     super.initState();
     _loadBanner();
-    if (!widget.embedMode) {
+    if (widget.embedMode) {
+      HardwareKeyboard.instance.addHandler(_onKey);
+    } else {
       _sessionTimer.start();
       _sessionTimer.addListener(_onTimerTick);
     }
@@ -98,6 +140,7 @@ class _GameScreenState extends State<GameScreen> {
 
   @override
   void dispose() {
+    HardwareKeyboard.instance.removeHandler(_onKey);
     _sessionTimer.removeListener(_onTimerTick);
     _sessionTimer.dispose();
     _bannerAd?.dispose();
@@ -188,6 +231,65 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
+  // A global handler rather than a Focus widget, so keys keep working after
+  // the player clicks a button.
+  bool _onKey(KeyEvent event) {
+    if (event is KeyUpEvent || !mounted) return false;
+    if (!(ModalRoute.of(context)?.isCurrent ?? true)) return false;
+    final key = event.logicalKey;
+    final repeat = event is KeyRepeatEvent;
+
+    final digitCell = _digitKeys[key];
+    if (digitCell != null) {
+      if (!repeat) _keyMove(digitCell);
+      return true;
+    }
+
+    final arrows = {
+      LogicalKeyboardKey.arrowUp: (-1, 0),
+      LogicalKeyboardKey.arrowDown: (1, 0),
+      LogicalKeyboardKey.arrowLeft: (0, -1),
+      LogicalKeyboardKey.arrowRight: (0, 1),
+    };
+    final step = arrows[key];
+    if (step != null) {
+      setState(() {
+        final c = _cursor;
+        if (c == null) {
+          _cursor = 4; // first arrow press selects the centre
+        } else {
+          final row = (c ~/ 3 + step.$1).clamp(0, 2);
+          final col = (c % 3 + step.$2).clamp(0, 2);
+          _cursor = row * 3 + col;
+        }
+      });
+      return true;
+    }
+
+    if (key == LogicalKeyboardKey.enter ||
+        key == LogicalKeyboardKey.numpadEnter ||
+        key == LogicalKeyboardKey.space) {
+      // A button reached with Tab owns Enter/Space.
+      final focus = FocusManager.instance.primaryFocus;
+      if (focus != null && focus is! FocusScopeNode) return false;
+      final c = _cursor;
+      if (c != null && !repeat) _keyMove(c);
+      return true;
+    }
+
+    if (key == LogicalKeyboardKey.keyN) {
+      if (!repeat) _reset();
+      return true;
+    }
+    return false;
+  }
+
+  void _keyMove(int index) {
+    setState(() => _cursor = index);
+    final boardEnabled = !_game.isOver && !_aiThinking && !_isAiTurn;
+    if (boardEnabled && _game.board.canMove(index)) _onCellTap(index);
+  }
+
   bool get _isAiTurn =>
       _vsAi && !_game.isOver && _game.currentPlayer == Player.o;
 
@@ -266,7 +368,14 @@ class _GameScreenState extends State<GameScreen> {
     _aiThinking = false;
   }
 
+  /// In embed mode a clicked button gives up focus, so Enter/Space go back
+  /// to the board instead of pressing that button again.
+  void _releaseFocus() {
+    if (widget.embedMode) FocusManager.instance.primaryFocus?.unfocus();
+  }
+
   void _reset() {
+    _releaseFocus();
     HapticFeedback.lightImpact();
     setState(() {
       _cancelAiTimer();
@@ -276,6 +385,7 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _setMode(bool vsAi) {
+    _releaseFocus();
     setState(() {
       _cancelAiTimer();
       _hintCell = null;
@@ -285,6 +395,7 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _setDifficulty(Difficulty d) {
+    _releaseFocus();
     setState(() {
       _cancelAiTimer();
       _hintCell = null;
@@ -334,6 +445,7 @@ class _GameScreenState extends State<GameScreen> {
       board: _game.board,
       winningLine: _game.board.winningLine,
       hintCell: _hintCell,
+      cursorCell: _cursor,
       onCellTap: boardEnabled ? _onCellTap : null,
     );
   }
@@ -575,8 +687,11 @@ class _GameScreenState extends State<GameScreen> {
       );
 
   Widget _themeToggle(bool isDark, {bool withLabel = false}) {
-    void toggle() =>
-        themeNotifier.value = isDark ? ThemeMode.light : ThemeMode.dark;
+    void toggle() {
+      _releaseFocus();
+      themeNotifier.value = isDark ? ThemeMode.light : ThemeMode.dark;
+    }
+
     final icon = Icon(isDark ? Icons.light_mode : Icons.dark_mode);
     final tooltip = isDark ? 'Switch to light mode' : 'Switch to dark mode';
     if (withLabel) {
