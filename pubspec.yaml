@@ -62,9 +62,9 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  assets:
-    - assets/icon/
-    - assets/splash/
+  # assets/icon/ and assets/splash/ are read directly by
+  # flutter_launcher_icons and flutter_native_splash; the app never loads
+  # them at runtime, so they are not bundled.
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
