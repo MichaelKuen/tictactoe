@@ -7,6 +7,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- `docs/ui_design_system.md` — section 13, Web Build: site colours, `webLightTheme` /
+  `webDarkTheme` and `BoardColors` values, what to hide on web, embed layout tokens, keyboard
+  pattern, and web files
+
+### Changed
+- `docs/ui_design_system.md` — mobile sections updated to match milestone 14: 720 px landscape
+  sidebar breakpoint, no left spacer, board up to 560 px with a 240 px minimum, rows/columns
+  board with cell-scaled glyphs, light default on web
+
 ## [1.5.0] — 2026-10-12 — Milestone 14: Web Embed for appversegames.com
 
 ### Added
