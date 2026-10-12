@@ -59,6 +59,7 @@ The `.dart_tool/` directory is generated — do NOT add headers there.
 | 11 | milestone/11-score-tracking   | Persistent win/draw/loss score tracking          | ✅ Complete (confirmed 2026-07-01) |
 | 12 | milestone/12-privacy-policy   | In-app privacy policy (Summary + Full Policy)    | ✅ Complete (confirmed 2026-07-01) |
 | 13 | milestone/13-kofi-support     | Ko-fi support button across all platforms        | ✅ Complete (confirmed 2026-07-26) |
+| 14 | milestone/14-web-embed        | Web build for appversegames.com iframe            | 🔄 Awaiting confirmation |
 
 ---
 

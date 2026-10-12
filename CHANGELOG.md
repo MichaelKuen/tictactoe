@@ -7,6 +7,37 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.5.0] — 2026-10-12 — Milestone 14: Web Embed for appversegames.com
+
+### Added
+- Web embed mode (`GameScreen.embedMode`, default `kIsWeb`): the web build shows only the game
+  for the iframe at `/play/tictactoe/` — no app bar, Games Hub, privacy page, Ko-fi, ad hint
+  button or session timer
+- Responsive web layout from one `LayoutBuilder`: side panel at >=720px wide and landscape,
+  otherwise stacked controls; fits 320px wide and 560px tall without scrolling
+- `lib/ui/web_theme.dart` — light and dark web themes in the site colours; web starts light
+- `lib/ui/board_colors.dart` — optional `BoardColors` theme extension
+- Keyboard controls on web: digits, numpad, arrows + Enter/Space, N for new game
+- `web/flutter_bootstrap.js` (loading spinner removal, no service worker) and `web/.htaccess`
+  (MIME types, deflate, no-cache / no-store, no immutable)
+- Tests: `test/ui/mobile_flow_test.dart` (pins mobile behaviour) and
+  `test/ui/embed_layout_test.dart` (13 iframe sizes, embed-only UI, keyboard) — 135 tests total
+
+### Changed
+- `web/index.html` and `web/manifest.json` — real title, description, viewport, theme-color,
+  ivory background, loading spinner, `touch-action: pan-y` so swipes scroll the host page
+- Board renders with rows/columns instead of a `GridView`; X/O glyph scales with the cell
+- Mobile sizing: removed the empty 180px spacer, sidebar only at >=720px wide and landscape,
+  board uses the largest available square, narrow layout scrolls instead of shrinking the
+  board below 240px
+- Android label and iOS display name are now "Tic Tac Toe" (IDs unchanged)
+- `debugShowCheckedModeBanner: false`
+- `pubspec.yaml` — `assets/icon/` and `assets/splash/` no longer bundled (only used by the
+  icon/splash generators)
+- `pubspec.lock` and `analysis_options.yaml` — updated automatically by Flutter 3.47.6
+
+No new packages.
+
 ## [1.4.0] — 2026-07-26 — Milestone 13: Ko-fi Support Button
 
 ### Added
