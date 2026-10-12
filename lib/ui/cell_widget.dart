@@ -2,6 +2,7 @@
 // Unauthorised use, reproduction, or distribution is strictly prohibited.
 import 'package:flutter/material.dart';
 import '../game/player.dart';
+import 'board_colors.dart';
 
 class CellWidget extends StatefulWidget {
   final Player? player;
@@ -9,12 +10,16 @@ class CellWidget extends StatefulWidget {
   final bool highlighted;
   final bool hinted;
 
+  /// Keyboard cursor is on this cell.
+  final bool focused;
+
   const CellWidget({
     super.key,
     required this.player,
     this.onTap,
     this.highlighted = false,
     this.hinted = false,
+    this.focused = false,
   });
 
   @override
@@ -76,6 +81,7 @@ class _CellWidgetState extends State<CellWidget> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final colors = theme.extension<BoardColors>();
     final playerColor = widget.player == Player.x
         ? theme.colorScheme.primary
         : theme.colorScheme.secondary;
@@ -85,15 +91,19 @@ class _CellWidgetState extends State<CellWidget> with TickerProviderStateMixin {
     final double borderWidth;
 
     if (widget.highlighted) {
-      bgColor = const Color(0x44FFD740);
-      borderColor = const Color(0xFFFFD740);
+      bgColor = colors?.highlightFill ?? const Color(0x44FFD740);
+      borderColor = colors?.highlight ?? const Color(0xFFFFD740);
       borderWidth = 2.5;
     } else if (widget.hinted) {
       bgColor = const Color(0x4469F0AE);
       borderColor = const Color(0xFF69F0AE);
       borderWidth = 2.5;
+    } else if (widget.focused) {
+      bgColor = colors?.cell ?? (isDark ? const Color(0xFF252540) : Colors.white);
+      borderColor = colors?.cursor ?? theme.colorScheme.primary;
+      borderWidth = 3;
     } else {
-      bgColor = isDark ? const Color(0xFF252540) : Colors.white;
+      bgColor = colors?.cell ?? (isDark ? const Color(0xFF252540) : Colors.white);
       borderColor = theme.colorScheme.outline;
       borderWidth = 1;
     }
@@ -109,13 +119,19 @@ class _CellWidgetState extends State<CellWidget> with TickerProviderStateMixin {
         ),
         child: Center(
           child: widget.player != null
-              ? ScaleTransition(
-                  scale: _placeScale,
-                  child: Text(
-                    widget.player!.label,
-                    style: theme.textTheme.displayMedium?.copyWith(
-                      color: playerColor,
-                      fontWeight: FontWeight.bold,
+              ? LayoutBuilder(
+                  // Glyph scales with the cell so it never overflows small
+                  // boards and fills large ones.
+                  builder: (context, constraints) => ScaleTransition(
+                    scale: _placeScale,
+                    child: Text(
+                      widget.player!.label,
+                      style: theme.textTheme.displayMedium?.copyWith(
+                        color: playerColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: constraints.biggest.shortestSide * 0.5,
+                        height: 1.0,
+                      ),
                     ),
                   ),
                 )
