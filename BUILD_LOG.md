@@ -786,3 +786,19 @@ Analyzing tictactoe...
 No issues found! (ran in 2.0s)
 00:03 +135: All tests passed!
 ```
+
+---
+
+## Docs — UI design system: web theme
+
+**Date:** 2026-10-12  
+**Branch:** docs/ui-design-system-web
+
+### git checkout -b docs/ui-design-system-web
+
+```
+docs/ui-design-system-web
+```
+
+Docs-only change (`docs/ui_design_system.md`, `CHANGELOG.md`, `BUILD_LOG.md`); no code changed,
+so `flutter analyze` / `flutter test` were not re-run.

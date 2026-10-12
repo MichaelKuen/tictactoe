@@ -10,8 +10,13 @@ foundations intact. We are trying to maintain a consistent look, feel across all
 
 ## 1. Theme Setup (`main.dart`)
 
-Use Material 3. Default to dark mode. Wire a global `ValueNotifier<ThemeMode>` called
+Use Material 3. Default to dark mode on mobile and light mode on web
+(`kIsWeb ? ThemeMode.light : ThemeMode.dark`). Wire a global `ValueNotifier<ThemeMode>` called
 `themeNotifier` (in `lib/theme_notifier.dart`) so any widget can toggle the theme.
+
+The tables below are the **mobile** themes. The web build uses its own themes in the
+appversegames.com site colours: see [section 13](#13-web-build-appversegamescom-iframe).
+In `main.dart`: `theme: kIsWeb ? webLightTheme : _lightTheme`, and the same for `darkTheme`.
 
 ### Light theme — `ColorScheme.light`
 
@@ -52,24 +57,34 @@ Use Material 3. Default to dark mode. Wire a global `ValueNotifier<ThemeMode>` c
 
 ---
 
-## 3. Responsive Layout (LayoutBuilder breakpoint: 600 px)
+## 3. Responsive Layout (mobile)
 
-### Narrow (\<600 px) — Column layout
+Sidebar only when the space is **≥ 720 px wide and landscape**
+(`maxWidth >= 720 && maxWidth > maxHeight`); otherwise the narrow column. A fixed 600 px
+breakpoint squeezed the board between 600 and 720 px.
 
-- Outer padding: `EdgeInsets.all(24)`
+### Narrow — Column layout
+
+- Outer padding: `EdgeInsets.symmetric(horizontal: 24, vertical: 16)`
 - Order (top to bottom):
   1. Mode selector (`SegmentedButton`)
   2. Sub-option selector if applicable (e.g. difficulty) — only when relevant mode active
   3. Score widget (if scores exist)
   4. Status text (`AnimatedSwitcher`, `headlineMedium`)
-  5. Game board (`Flexible` + `AspectRatio` 1:1, `maxWidth`/`maxHeight` 400)
+  5. Game board — fixed square computed from the `LayoutBuilder`:
+     `min(width − 48, max(height − 400, 240), 560)`
   6. Primary action button (`FilledButton` — e.g. "New Game")
   7. Secondary optional action (`OutlinedButton.icon` — e.g. hint)
+  8. Ko-fi button
+- Wrap the column in `SingleChildScrollView` + `ConstrainedBox(minHeight: maxHeight)` +
+  `Center`: it stays centred when it fits and scrolls on very short phones instead of shrinking
+  the board below 240 px.
 
-### Wide (≥600 px) — Sidebar layout
+### Wide — Sidebar layout
 
-- Left spacer: 180 px (mirrors sidebar width for visual centering)
-- Centre: game board + status, padding `EdgeInsets.all(32)`
+- No left spacer (a mirrored spacer wastes 180 px of board space)
+- Centre: game board + status, padding `EdgeInsets.all(32)`; the board is the largest square
+  that fits (`Flexible` + `LayoutBuilder`, max 560 px)
 - Right sidebar: 180 px wide
   - Background: `isDark ? Color(0xFF252540) : Color(0xFFEEEEEE)`
   - Border: `Border(left: BorderSide(color: sidebarBorderColor))` where
@@ -78,7 +93,15 @@ Use Material 3. Default to dark mode. Wire a global `ValueNotifier<ThemeMode>` c
   - Content: section labels (`labelMedium`, 50% opacity, `letterSpacing: 1.2`) above
     groups of `_SidebarButton` widgets (`FilledButton` when selected / `OutlinedButton`
     when not), separated by `Divider`s.
-  - Bottom of sidebar: "More Games" `OutlinedButton.icon`, then score widget.
+  - Wrap the content in `SingleChildScrollView`.
+  - Order: mode, difficulty, New Game, hint, score widget, then "More Games"
+    `OutlinedButton.icon` and the Ko-fi button at the bottom.
+
+### Board
+
+- Build the grid from `Column`/`Row`/`Expanded`, not `GridView`, so the board is never a
+  scrollable and always fills the square it is given.
+- Piece glyph size follows the cell: `fontSize = cellShortestSide * 0.5`, `height: 1.0`.
 
 ---
 
@@ -140,10 +163,15 @@ Use `HapticFeedback`:
 
 ---
 
-## 6. Hardcoded Semantic Colours (used regardless of theme)
+## 6. Hardcoded Semantic Colours (mobile, used regardless of theme)
+
+Board colours (cell, winning highlight, keyboard cursor) come from the optional `BoardColors`
+theme extension when the theme provides one, which the web themes do (section 13). The values
+below are the fallbacks used on mobile.
 
 | Purpose                 | Background  | Foreground / Border |
 |-------------------------|-------------|---------------------|
+| Cell                    | `isDark ? #252540 : white` | `outline`, 1 px |
 | Winning-cell highlight  | `#44FFD740` | `#FFD740`           |
 | Hint cell               | `#4469F0AE` | `#69F0AE`           |
 | Hint / rewarded button  | —           | `#69F0AE`           |
@@ -202,14 +230,18 @@ Contact section: `OutlinedButton.icon` to launch `mailto:` URI.
 | Token               | Value  |
 |---------------------|--------|
 | Base unit           | 8 px   |
-| Narrow outer pad    | 24 px  |
+| Narrow outer pad    | 24 px horizontal, 16 px vertical |
 | Wide centre pad     | 32 px  |
 | Sidebar width       | 180 px |
+| Sidebar breakpoint  | ≥ 720 px wide **and** landscape |
 | Sidebar inner pad   | `symmetric(horizontal: 16, vertical: 24)` |
 | Between major sections | 16–24 px |
 | Between related items  | 8–12 px  |
 | Card inner padding  | 14–16 px |
-| Board max dimension | 400×400  |
+| Board max dimension | 560×560  |
+| Board min (narrow mobile) | 240 px, column scrolls below that |
+
+Web embed constants are in section 13.
 
 ---
 
@@ -232,6 +264,141 @@ No blank line before the first import. Do not add headers to generated files.
 - **No persistent scores** — omit `ScoreWidget` and `ScoreRepository`.
 - **No ads** — omit `AdManager`, banner widget, and hint rewarded flow.
 - **No health session concern** — omit `SessionBarWidget` and session dialogs.
-- **Always include**: theme system, AppBar pattern, responsive layout, Games Hub sheet,
-  Privacy Policy screen, copyright headers, and branch/commit conventions from `CLAUDE.md`.
+- **Always include on mobile**: theme system, AppBar pattern, responsive layout, Games Hub
+  sheet, Privacy Policy screen, copyright headers, and branch/commit conventions from
+  `CLAUDE.md`.
+- **On web** the game is embedded in appversegames.com: leave out the AppBar, Games Hub,
+  Privacy Policy, Ko-fi, ads and session timer, and follow section 13.
 - Adjust status text logic and board/game widget for the specific game's state model.
+
+---
+
+## 13. Web Build (appversegames.com iframe)
+
+The web build is embedded in an iframe at `https://appversegames.com/play/<name>/`. The page
+around it already shows the title, rules and ads, so the web build shows **only the game**.
+Gate it with an `embedMode` flag that defaults to `kIsWeb`
+(`const GameScreen({super.key, this.embedMode = kIsWeb})`), so widget tests can drive the web
+layout on the VM with `embedMode: true`.
+
+### Site colours
+
+| Name   | Hex       | Used for |
+|--------|-----------|----------|
+| Ivory  | `#F6F3EC` | Page and game background |
+| Navy   | `#16193A` | Headings, text, X (light), primary buttons |
+| Amber  | `#F2A541` | Accent: selected segments, winning line, cursor, X (dark) |
+| Teal   | `#0B6B63` | Links, O (light) |
+
+### Web themes (`lib/ui/web_theme.dart`)
+
+Material 3. Web starts **light**; a theme toggle sits in the game controls because there is no
+AppBar. Set `scaffoldBackgroundColor` to the surface colour.
+
+**`webLightTheme` — `ColorScheme.light`**
+
+| Role                 | Value     | Notes |
+|----------------------|-----------|-------|
+| primary              | `#16193A` | X, New Game button |
+| onPrimary            | `#FFFFFF` | |
+| secondary            | `#0B6B63` | O |
+| onSecondary          | `#FFFFFF` | |
+| secondaryContainer   | `#F9DDB0` | Selected segment (amber tint) |
+| onSecondaryContainer | `#16193A` | |
+| surface              | `#F6F3EC` | Ivory |
+| onSurface            | `#16193A` | |
+| outline              | `#CFC7B5` | Cell and segment borders |
+
+**`webDarkTheme` — `ColorScheme.dark`**
+
+| Role                 | Value     | Notes |
+|----------------------|-----------|-------|
+| primary              | `#F2A541` | X, New Game button |
+| onPrimary            | `#16193A` | |
+| secondary            | `#5FD4C4` | O (teal lightened for contrast on navy) |
+| onSecondary          | `#16193A` | |
+| secondaryContainer   | `#3B3F6B` | Selected segment |
+| onSecondaryContainer | `#F6F3EC` | |
+| surface              | `#16193A` | Navy |
+| onSurface            | `#F6F3EC` | |
+| outline              | `#3B3F6B` | |
+
+**`BoardColors` extension (`lib/ui/board_colors.dart`)**
+
+| Field         | Light       | Dark        |
+|---------------|-------------|-------------|
+| cell          | `#FFFFFF`   | `#22264D`   |
+| highlight     | `#F2A541`   | `#F2A541`   |
+| highlightFill | `#55F2A541` | `#44F2A541` |
+| cursor        | `#F2A541`   | `#F6F3EC`   |
+
+Keep the board pieces in strong colours (navy/teal on white, amber/light teal on navy). Plain
+amber is too light for text on white, so use it only for borders, fills and selection.
+
+### What to hide on web
+
+AppBar and title, Games Hub / "More Games", Privacy Policy, store links, Ko-fi, ads and any
+ad-gated feature (e.g. "Watch ad for hint"), and the health session bar and break reminders
+(don't start the timer). No ad SDK may load on web. Open straight into the game; there is no
+home screen.
+
+### Layout (one `LayoutBuilder`)
+
+- **Side panel** when the iframe is ≥ 720 px wide and landscape; otherwise controls stacked
+  around the board.
+- **Board** = `min(available width, available height − controls, 560)`.
+- Every control row has a **fixed height** and a `FittedBox(fit: BoxFit.scaleDown)`, so text
+  shrinks instead of overflowing. No empty spacers, nothing scrollable.
+- `SegmentedButton(showSelectedIcon: false)` to save width.
+- Must fit 320 px wide and down to 560 px tall; target sizes: 320×568 to 1280×700, plus
+  1024×500 and 844×390. Board ≥ 280 px (≥ 400 px when the shortest side is ≥ 600 px).
+
+| Token            | Value |
+|------------------|-------|
+| Outer padding    | 12 px |
+| Gap between rows | 8 px  |
+| Control row      | 40 px |
+| Status row       | 32 px |
+| Bottom row (score + New Game) | 52 px |
+| Side panel width | 240 px (whole panel in a `FittedBox`) |
+| Board max        | 560 px |
+
+**Stacked order:** [mode selector + theme icon] → [difficulty, or "Two players, one device"
+at the same height so the board doesn't jump] → status → board → [score + New Game].
+
+**Side panel order:** status → MODE → DIFFICULTY (`labelMedium`, 70% opacity,
+`letterSpacing: 1.2`) → score → New Game → "Dark mode" / "Light mode" `TextButton.icon`.
+
+### Keyboard (web)
+
+| Key           | Action |
+|---------------|--------|
+| 1–9           | Cell in reading order (1 = top-left) |
+| Numpad 1–9    | Cell in numpad layout (7 = top-left) |
+| Arrows        | Move a cursor; the first press selects the centre |
+| Enter / Space | Act at the cursor |
+| N             | New game |
+
+- Use `HardwareKeyboard.instance.addHandler` in `initState` (remove in `dispose`), not a
+  focus-based `KeyboardListener`, so keys keep working after a button is clicked.
+- Ignore keys while a dialog is open (`ModalRoute.of(context)?.isCurrent`).
+- After a control is clicked, call `FocusManager.instance.primaryFocus?.unfocus()` so
+  Enter/Space don't press that button again.
+- Map the arrow keys to `DoNothingAndStopPropagationIntent` in `MaterialApp.shortcuts` on web,
+  so they don't move focus between buttons.
+- Show the cursor as a 3 px border in `BoardColors.cursor`.
+
+### Web files
+
+- `web/index.html`: real title and meta description, viewport, `theme-color: #F6F3EC`, ivory
+  `body` background, and a CSS spinner in `#loading` ("Loading <Game>…", navy text, amber arc).
+- `touch-action: pan-y !important` on `html, body, flutter-view, flt-glass-pane`, so swipes over
+  the game scroll the host page (only for games without drag gestures).
+- Custom `web/flutter_bootstrap.js` that removes `#loading` after `appRunner.runApp()`; no
+  service worker.
+- `web/manifest.json`: real name and description, ivory `background_color` and `theme_color`.
+- `web/.htaccess`: `no-cache` for build files and `no-store` for `index.html`; never
+  `immutable` or long expiry (Flutter file names are not hashed).
+- No emoji in the UI (it makes Flutter web download an emoji font).
+- Build: `flutter build web --release --base-href /play/<name>/ --no-web-resources-cdn`
+  (run from PowerShell; Git Bash rewrites `/play/...` into a Windows path).
