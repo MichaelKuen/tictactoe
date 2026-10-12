@@ -627,3 +627,162 @@ No issues found! (ran in 1.0s)
 e915208 docs(milestone-01): add tutorial for core game logic
 76904de docs: update CLAUDE.md and README with milestone 00/01 status
 ```
+
+---
+
+## Milestone 14 — Web Embed for appversegames.com
+
+**Date:** 2026-10-12  
+**Branch:** milestone/14-web-embed  
+**Flutter:** 3.47.6 | **Dart:** 3.13.5
+
+Where a command printed long dependency listings or stack traces, the captured tail of the
+output is recorded (marked "tail").
+
+### flutter --version
+
+```
+Flutter 3.47.6 • channel stable • https://github.com/flutter/flutter.git
+Framework • revision 5fc346839b (12 days ago) • 2026-09-30 15:02:49 -0700
+Engine • hash b8c8d3d8d5d0095127057f8a29ca8cc53da2167c (revision 692136cb65) (12 days ago) • 2026-09-30 00:56:59.000Z
+Tools • Dart 3.13.5 • DevTools 2.60.0
+```
+
+### Baseline: flutter build web --release (on main, before changes) — tail
+
+```
+Changed 4 dependencies!
+29 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Upgrading analysis_options.yaml to exclude build and platform directories.
+Compiling lib\main.dart for the Web...
+Wasm dry run succeeded. Consider building and testing your application with the `--wasm` flag. See docs for more info: https://docs.flutter.dev/platform-integration/web/wasm
+Use --no-wasm-dry-run to disable these warnings.
+Font asset "CupertinoIcons.ttf" was tree-shaken, reducing it from 257628 to 1472 bytes (99.4% reduction). Tree-shaking can be disabled by providing the --no-tree-shake-icons flag when building your app.
+Font asset "MaterialIcons-Regular.otf" was tree-shaken, reducing it from 1645184 to 10980 bytes (99.3% reduction). Tree-shaking can be disabled by providing the --no-tree-shake-icons flag when building your app.
+Compiling lib\main.dart for the Web...                             25,7s
+√ Built build\web
+```
+
+Baseline sizes: `build/web` 40M, `canvaskit/` 37M, `assets/` 1.4M, `main.dart.js` 2296216 bytes.
+
+### Baseline: flutter analyze / flutter test
+
+```
+Analyzing tictactoe...
+No issues found! (ran in 2.1s)
+00:02 +98: All tests passed!
+```
+
+### git checkout -b milestone/14-web-embed; git commit (lockfile + analyzer excludes)
+
+```
+Switched to a new branch 'milestone/14-web-embed'
+66de2bc chore(deps): apply Flutter 3.47 pub get lockfile and analyzer excludes
+```
+
+### flutter test test/ui/mobile_flow_test.dart (first run, 390x844) — tail
+
+```
+00:01 +3 -9: Some tests failed.
+```
+
+Cause: the session bar overflows at 390px with the test font (square glyphs); real Roboto
+needs ~250px. Tests moved to 480x900. Second run:
+
+```
+Expected: exactly 2 matching candidates
+  Actual: _TextWidgetFinder:<Found 3 widgets with text "O": [
+00:01 +11 -1: Some tests failed.
+```
+
+Cause: the score label also reads "O"; finder scoped to the cell. Then:
+
+```
+00:02 +110: All tests passed!
+9d42f5a test(ui): pin mobile game screen behaviour before web-embed refactor
+```
+
+### Board refactor, mobile sizing, embed mode
+
+```
+No issues found! (ran in 2.2s)
+00:02 +110: All tests passed!
+3e32656 refactor(ui): non-scrollable board, cell-scaled glyphs, optional board colours
+00:02 +110: All tests passed!
+fb6033c fix(ui): mobile board sizing on short and mid-width screens
+00:01 +19: All tests passed!        (test/ui/embed_layout_test.dart)
+aa727d9 feat(web): embed mode game screen for the appversegames.com iframe
+00:02 +129: All tests passed!
+32b2758 feat(web): site-coloured light and dark themes, light by default on web
+```
+
+### Keyboard controls
+
+```
+error - The type of a key in a constant map can't override the '==' operator, or 'hashCode', but the class 'LogicalKeyboardKey' does. Try using a different value for the key, or removing the keyword 'const' from the map - lib\ui\game_screen.dart:238:7 - const_map_key_not_primitive_equality
+```
+
+Fixed (`final` map). Test failures found that a clicked button keeps focus and that arrow
+keys move focus on the VM; fixed by releasing focus after control clicks and mapping arrows to
+`DoNothingAndStopPropagationIntent` in embed mode.
+
+```
+00:02 +135: All tests passed!
+df16833 feat(web): keyboard controls in embed mode
+53d3b1f feat(web): iframe-ready index.html, bootstrap, manifest and .htaccess
+ab6974c chore: hide debug banner and stop bundling generator-only images
+6bf2990 chore(mobile): show the app name as "Tic Tac Toe" on Android and iOS
+```
+
+### flutter clean; flutter build web --release --base-href /play/tictactoe/ --no-web-resources-cdn (PowerShell) — tail
+
+Note: from Git Bash the `/play/...` argument was rewritten to
+`C:/Program Files/Git/play/tictactoe/` and the build refused it; run from PowerShell.
+
+```
+Compiling lib\main.dart for the Web...                             23,1s
+√ Built build\web
+```
+
+Output: `.htaccess` 1237, `index.html` 2312, `flutter_bootstrap.js` 13323,
+`main.dart.js` 2032535 bytes; total 41502152 bytes, of which canvaskit 37851412 (local);
+`assets/fonts/fallback/Roboto-Regular.ttf` 171676.
+
+### Iframe check (python -m http.server 8765, headless Chrome, iframes 320/600/1024)
+
+```
+20145 bytes written to file .../shot_320.png
+20066 bytes written to file .../shot_600.png
+23993 bytes written to file .../shot_1024.png
+```
+
+Offline run (`--host-resolver-rules="MAP * ~NOTFOUND, EXCLUDE 127.0.0.1"`):
+
+```
+20145 bytes written to file .../shot_offline_320.png
+IDENTICAL to online render
+```
+
+Server log (every request was local):
+
+```
+GET /play/tictactoe/
+GET /play/tictactoe/flutter_bootstrap.js
+GET /play/tictactoe/main.dart.js
+GET /play/tictactoe/canvaskit/chromium/canvaskit.js
+GET /play/tictactoe/canvaskit/chromium/canvaskit.wasm
+GET /play/tictactoe/assets/FontManifest.json
+GET /play/tictactoe/assets/fonts/MaterialIcons-Regular.otf
+GET /play/tictactoe/assets/fonts/fallback/Roboto-Regular.ttf
+GET /play/tictactoe/assets/packages/cupertino_icons/assets/CupertinoIcons.ttf
+GET /favicon.ico   (test page, not the game)
+```
+
+### Final flutter analyze / flutter test
+
+```
+Analyzing tictactoe...
+No issues found! (ran in 2.0s)
+00:03 +135: All tests passed!
+```

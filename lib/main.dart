@@ -1,9 +1,11 @@
 // Copyright © FullStackShack. All rights reserved.
 // Unauthorised use, reproduction, or distribution is strictly prohibited.
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'ads/ad_manager.dart';
 import 'theme_notifier.dart';
 import 'ui/game_screen.dart';
+import 'ui/web_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,9 +22,11 @@ class TicTacToeApp extends StatelessWidget {
       valueListenable: themeNotifier,
       builder: (context, mode, child) => MaterialApp(
         title: 'Tic Tac Toe',
+        debugShowCheckedModeBanner: false,
         themeMode: mode,
-        theme: _lightTheme,
-        darkTheme: _darkTheme,
+        shortcuts: kIsWeb ? GameScreen.embedShortcuts : null,
+        theme: kIsWeb ? webLightTheme : _lightTheme,
+        darkTheme: kIsWeb ? webDarkTheme : _darkTheme,
         home: const GameScreen(),
       ),
     );

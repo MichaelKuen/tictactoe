@@ -1,6 +1,7 @@
 // Copyright © FullStackShack. All rights reserved.
 // Unauthorised use, reproduction, or distribution is strictly prohibited.
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,7 +24,26 @@ import 'score_widget.dart';
 import 'session_bar_widget.dart';
 
 class GameScreen extends StatefulWidget {
-  const GameScreen({super.key});
+  /// Web build embedded in the appversegames.com iframe: the page around it
+  /// shows the title, rules and ads, so the game shows only the game: no app
+  /// bar, store links, Ko-fi, ad hints or session timer.
+  final bool embedMode;
+
+  const GameScreen({super.key, this.embedMode = kIsWeb});
+
+  /// App shortcuts for embed mode: arrow keys belong to the board cursor, so
+  /// they must not also move focus between buttons or scroll.
+  static Map<ShortcutActivator, Intent> get embedShortcuts => {
+        ...WidgetsApp.defaultShortcuts,
+        const SingleActivator(LogicalKeyboardKey.arrowUp):
+            const DoNothingAndStopPropagationIntent(),
+        const SingleActivator(LogicalKeyboardKey.arrowDown):
+            const DoNothingAndStopPropagationIntent(),
+        const SingleActivator(LogicalKeyboardKey.arrowLeft):
+            const DoNothingAndStopPropagationIntent(),
+        const SingleActivator(LogicalKeyboardKey.arrowRight):
+            const DoNothingAndStopPropagationIntent(),
+      };
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -45,6 +65,32 @@ class _GameScreenState extends State<GameScreen> {
   Score _aiScore = const Score();
   Score _humanScore = const Score();
 
+  /// Keyboard cursor (embed mode only); null until an arrow key is pressed.
+  int? _cursor;
+
+  // Digit row in reading order: 1 = top-left, 9 = bottom-right.
+  static final _digitKeys = <LogicalKeyboardKey, int>{
+    LogicalKeyboardKey.digit1: 0,
+    LogicalKeyboardKey.digit2: 1,
+    LogicalKeyboardKey.digit3: 2,
+    LogicalKeyboardKey.digit4: 3,
+    LogicalKeyboardKey.digit5: 4,
+    LogicalKeyboardKey.digit6: 5,
+    LogicalKeyboardKey.digit7: 6,
+    LogicalKeyboardKey.digit8: 7,
+    LogicalKeyboardKey.digit9: 8,
+    // Numpad matches its physical layout: 7 = top-left, 3 = bottom-right.
+    LogicalKeyboardKey.numpad7: 0,
+    LogicalKeyboardKey.numpad8: 1,
+    LogicalKeyboardKey.numpad9: 2,
+    LogicalKeyboardKey.numpad4: 3,
+    LogicalKeyboardKey.numpad5: 4,
+    LogicalKeyboardKey.numpad6: 5,
+    LogicalKeyboardKey.numpad1: 6,
+    LogicalKeyboardKey.numpad2: 7,
+    LogicalKeyboardKey.numpad3: 8,
+  };
+
   static bool get _adsSupported =>
       !kIsWeb &&
       (defaultTargetPlatform == TargetPlatform.android ||
@@ -57,8 +103,12 @@ class _GameScreenState extends State<GameScreen> {
   void initState() {
     super.initState();
     _loadBanner();
-    _sessionTimer.start();
-    _sessionTimer.addListener(_onTimerTick);
+    if (widget.embedMode) {
+      HardwareKeyboard.instance.addHandler(_onKey);
+    } else {
+      _sessionTimer.start();
+      _sessionTimer.addListener(_onTimerTick);
+    }
     _initScores();
   }
 
@@ -90,6 +140,7 @@ class _GameScreenState extends State<GameScreen> {
 
   @override
   void dispose() {
+    HardwareKeyboard.instance.removeHandler(_onKey);
     _sessionTimer.removeListener(_onTimerTick);
     _sessionTimer.dispose();
     _bannerAd?.dispose();
@@ -180,6 +231,65 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
+  // A global handler rather than a Focus widget, so keys keep working after
+  // the player clicks a button.
+  bool _onKey(KeyEvent event) {
+    if (event is KeyUpEvent || !mounted) return false;
+    if (!(ModalRoute.of(context)?.isCurrent ?? true)) return false;
+    final key = event.logicalKey;
+    final repeat = event is KeyRepeatEvent;
+
+    final digitCell = _digitKeys[key];
+    if (digitCell != null) {
+      if (!repeat) _keyMove(digitCell);
+      return true;
+    }
+
+    final arrows = {
+      LogicalKeyboardKey.arrowUp: (-1, 0),
+      LogicalKeyboardKey.arrowDown: (1, 0),
+      LogicalKeyboardKey.arrowLeft: (0, -1),
+      LogicalKeyboardKey.arrowRight: (0, 1),
+    };
+    final step = arrows[key];
+    if (step != null) {
+      setState(() {
+        final c = _cursor;
+        if (c == null) {
+          _cursor = 4; // first arrow press selects the centre
+        } else {
+          final row = (c ~/ 3 + step.$1).clamp(0, 2);
+          final col = (c % 3 + step.$2).clamp(0, 2);
+          _cursor = row * 3 + col;
+        }
+      });
+      return true;
+    }
+
+    if (key == LogicalKeyboardKey.enter ||
+        key == LogicalKeyboardKey.numpadEnter ||
+        key == LogicalKeyboardKey.space) {
+      // A button reached with Tab owns Enter/Space.
+      final focus = FocusManager.instance.primaryFocus;
+      if (focus != null && focus is! FocusScopeNode) return false;
+      final c = _cursor;
+      if (c != null && !repeat) _keyMove(c);
+      return true;
+    }
+
+    if (key == LogicalKeyboardKey.keyN) {
+      if (!repeat) _reset();
+      return true;
+    }
+    return false;
+  }
+
+  void _keyMove(int index) {
+    setState(() => _cursor = index);
+    final boardEnabled = !_game.isOver && !_aiThinking && !_isAiTurn;
+    if (boardEnabled && _game.board.canMove(index)) _onCellTap(index);
+  }
+
   bool get _isAiTurn =>
       _vsAi && !_game.isOver && _game.currentPlayer == Player.o;
 
@@ -258,7 +368,14 @@ class _GameScreenState extends State<GameScreen> {
     _aiThinking = false;
   }
 
+  /// In embed mode a clicked button gives up focus, so Enter/Space go back
+  /// to the board instead of pressing that button again.
+  void _releaseFocus() {
+    if (widget.embedMode) FocusManager.instance.primaryFocus?.unfocus();
+  }
+
   void _reset() {
+    _releaseFocus();
     HapticFeedback.lightImpact();
     setState(() {
       _cancelAiTimer();
@@ -268,6 +385,7 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _setMode(bool vsAi) {
+    _releaseFocus();
     setState(() {
       _cancelAiTimer();
       _hintCell = null;
@@ -277,6 +395,7 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _setDifficulty(Difficulty d) {
+    _releaseFocus();
     setState(() {
       _cancelAiTimer();
       _hintCell = null;
@@ -319,18 +438,26 @@ class _GameScreenState extends State<GameScreen> {
   bool get _canHint =>
       !_game.isOver && !_aiThinking && !_isAiTurn && _hintCell == null;
 
+  static const double _maxBoard = 560;
+
+  Widget _board(bool boardEnabled) {
+    return BoardWidget(
+      board: _game.board,
+      winningLine: _game.board.winningLine,
+      hintCell: _hintCell,
+      cursorCell: _cursor,
+      onCellTap: boardEnabled ? _onCellTap : null,
+    );
+  }
+
+  /// Board that takes the largest square the remaining space allows.
   Widget _buildBoard(bool boardEnabled) {
     return Flexible(
-      child: AspectRatio(
-        aspectRatio: 1,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 400, maxHeight: 400),
-          child: BoardWidget(
-            board: _game.board,
-            winningLine: _game.board.winningLine,
-            hintCell: _hintCell,
-            onCellTap: boardEnabled ? _onCellTap : null,
-          ),
+      child: LayoutBuilder(
+        builder: (context, constraints) => SizedBox.square(
+          dimension: min(
+              min(constraints.maxWidth, constraints.maxHeight), _maxBoard),
+          child: _board(boardEnabled),
         ),
       ),
     );
@@ -350,10 +477,34 @@ class _GameScreenState extends State<GameScreen> {
 
   Widget _buildNarrowLayout(BuildContext context, bool boardEnabled) {
     final theme = Theme.of(context);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // The controls need roughly 400px of height. The board gets the rest
+        // but never drops below 240px: on very short screens the column
+        // scrolls instead of shrinking the board to nothing.
+        final boardSize = min(
+          min(constraints.maxWidth - 48,
+              max(constraints.maxHeight - 400, 240.0)),
+          _maxBoard,
+        );
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Center(
+              child: _buildNarrowColumn(theme, boardSize, boardEnabled),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildNarrowColumn(
+      ThemeData theme, double boardSize, bool boardEnabled) {
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           SegmentedButton<bool>(
             segments: const [
@@ -388,7 +539,7 @@ class _GameScreenState extends State<GameScreen> {
           const SizedBox(height: 8),
           _buildStatus(context, theme),
           const SizedBox(height: 16),
-          _buildBoard(boardEnabled),
+          SizedBox.square(dimension: boardSize, child: _board(boardEnabled)),
           const SizedBox(height: 16),
           FilledButton(onPressed: _reset, child: const Text('New Game')),
           if (_canHint) ...[
@@ -414,7 +565,6 @@ class _GameScreenState extends State<GameScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SizedBox(width: sidebarWidth),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(32),
@@ -520,11 +670,219 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
+  // ── Embedded web layout ────────────────────────────────────────────────
+
+  static const double _pad = 12;
+  static const double _gap = 8;
+  static const double _rowH = 40;
+  static const double _statusH = 32;
+  static const double _bottomH = 52;
+  static const double _panelW = 240;
+
+  /// Fixed-height row whose content shrinks instead of overflowing.
+  Widget _fit(double width, double height, Widget child) => SizedBox(
+        width: width,
+        height: height,
+        child: FittedBox(fit: BoxFit.scaleDown, child: child),
+      );
+
+  Widget _themeToggle(bool isDark, {bool withLabel = false}) {
+    void toggle() {
+      _releaseFocus();
+      themeNotifier.value = isDark ? ThemeMode.light : ThemeMode.dark;
+    }
+
+    final icon = Icon(isDark ? Icons.light_mode : Icons.dark_mode);
+    final tooltip = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+    if (withLabel) {
+      return TextButton.icon(
+        onPressed: toggle,
+        icon: icon,
+        label: Text(isDark ? 'Light mode' : 'Dark mode'),
+      );
+    }
+    return IconButton(tooltip: tooltip, icon: icon, onPressed: toggle);
+  }
+
+  Widget _modeSelector() => SegmentedButton<bool>(
+        showSelectedIcon: false,
+        segments: const [
+          ButtonSegment(value: true, label: Text('vs AI')),
+          ButtonSegment(value: false, label: Text('vs Human')),
+        ],
+        selected: {_vsAi},
+        onSelectionChanged: (s) => _setMode(s.first),
+      );
+
+  /// Difficulty buttons in AI mode; a note of the same size in 2-player mode
+  /// so the board does not jump when switching modes.
+  Widget _difficultySelector(ThemeData theme) {
+    if (!_vsAi) {
+      return SizedBox(
+        height: _rowH,
+        child: Center(
+          child: Text(
+            'Two players, one device',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
+          ),
+        ),
+      );
+    }
+    return SegmentedButton<Difficulty>(
+      showSelectedIcon: false,
+      segments: Difficulty.values
+          .map((d) => ButtonSegment(value: d, label: Text(d.label)))
+          .toList(),
+      selected: {_difficulty},
+      onSelectionChanged: (s) => _setDifficulty(s.first),
+    );
+  }
+
+  Widget _scoreBox() => SizedBox(
+        width: 200,
+        child: _scoreRepo == null
+            ? const SizedBox(height: 50)
+            : ScoreWidget(
+                score: _vsAi ? _aiScore : _humanScore,
+                vsAi: _vsAi,
+                onReset: _resetScores,
+              ),
+      );
+
+  Widget _buildEmbed(BuildContext context, bool boardEnabled) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    return Scaffold(
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final w = constraints.maxWidth;
+            final h = constraints.maxHeight;
+            if (w >= 720 && w > h) {
+              return _buildEmbedSide(theme, isDark, w, h, boardEnabled);
+            }
+            return _buildEmbedStacked(theme, isDark, w, h, boardEnabled);
+          },
+        ),
+      ),
+    );
+  }
+
+  /// Phones, narrow and square iframes: controls stacked around the board.
+  Widget _buildEmbedStacked(
+      ThemeData theme, bool isDark, double w, double h, bool boardEnabled) {
+    const controlsH =
+        _rowH + _gap + _rowH + _gap + _statusH + _gap + _gap + _bottomH;
+    final boardSize = max(
+      0.0,
+      min(min(w - 2 * _pad, h - 2 * _pad - controlsH), _maxBoard),
+    );
+    final controlsW = max(0.0, min(w - 2 * _pad, max(boardSize, 360.0)));
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _fit(
+            controlsW,
+            _rowH,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _modeSelector(),
+                const SizedBox(width: 8),
+                _themeToggle(isDark),
+              ],
+            ),
+          ),
+          const SizedBox(height: _gap),
+          _fit(controlsW, _rowH, _difficultySelector(theme)),
+          const SizedBox(height: _gap),
+          _fit(controlsW, _statusH, _buildStatus(context, theme)),
+          const SizedBox(height: _gap),
+          SizedBox.square(dimension: boardSize, child: _board(boardEnabled)),
+          const SizedBox(height: _gap),
+          _fit(
+            controlsW,
+            _bottomH,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _scoreBox(),
+                const SizedBox(width: 12),
+                FilledButton(onPressed: _reset, child: const Text('New Game')),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Wide landscape iframes: board on the left, control panel on the right.
+  Widget _buildEmbedSide(
+      ThemeData theme, bool isDark, double w, double h, bool boardEnabled) {
+    final boardSize = max(
+      0.0,
+      min(min(w - _panelW - 4 * _pad, h - 2 * _pad), _maxBoard),
+    );
+    final label = theme.textTheme.labelMedium?.copyWith(
+      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+      letterSpacing: 1.2,
+    );
+    final panel = SizedBox(
+      width: _panelW,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            height: 40,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: _buildStatus(context, theme),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text('MODE', style: label),
+          const SizedBox(height: 6),
+          _modeSelector(),
+          const SizedBox(height: 16),
+          Text('DIFFICULTY', style: label),
+          const SizedBox(height: 6),
+          _difficultySelector(theme),
+          const SizedBox(height: 16),
+          _scoreBox(),
+          const SizedBox(height: 16),
+          FilledButton(onPressed: _reset, child: const Text('New Game')),
+          const SizedBox(height: 8),
+          _themeToggle(isDark, withLabel: true),
+        ],
+      ),
+    );
+    return Center(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox.square(dimension: boardSize, child: _board(boardEnabled)),
+          const SizedBox(width: 2 * _pad),
+          SizedBox(
+            width: _panelW,
+            height: max(0.0, h - 2 * _pad),
+            child: FittedBox(fit: BoxFit.scaleDown, child: panel),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final boardEnabled = !_game.isOver && !_aiThinking && !_isAiTurn;
+    if (widget.embedMode) return _buildEmbed(context, boardEnabled);
     final appBarColor =
         isDark ? const Color(0xFF252540) : const Color(0xFFEEEEEE);
 
@@ -570,7 +928,10 @@ class _GameScreenState extends State<GameScreen> {
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  if (constraints.maxWidth >= 600) {
+                  // Sidebar only when there is room for it beside a decent
+                  // board: wide and landscape.
+                  if (constraints.maxWidth >= 720 &&
+                      constraints.maxWidth > constraints.maxHeight) {
                     return _buildWideLayout(context, boardEnabled);
                   }
                   return _buildNarrowLayout(context, boardEnabled);
