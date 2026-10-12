@@ -1,6 +1,7 @@
 // Copyright © FullStackShack. All rights reserved.
 // Unauthorised use, reproduction, or distribution is strictly prohibited.
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -319,18 +320,25 @@ class _GameScreenState extends State<GameScreen> {
   bool get _canHint =>
       !_game.isOver && !_aiThinking && !_isAiTurn && _hintCell == null;
 
+  static const double _maxBoard = 560;
+
+  Widget _board(bool boardEnabled) {
+    return BoardWidget(
+      board: _game.board,
+      winningLine: _game.board.winningLine,
+      hintCell: _hintCell,
+      onCellTap: boardEnabled ? _onCellTap : null,
+    );
+  }
+
+  /// Board that takes the largest square the remaining space allows.
   Widget _buildBoard(bool boardEnabled) {
     return Flexible(
-      child: AspectRatio(
-        aspectRatio: 1,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 400, maxHeight: 400),
-          child: BoardWidget(
-            board: _game.board,
-            winningLine: _game.board.winningLine,
-            hintCell: _hintCell,
-            onCellTap: boardEnabled ? _onCellTap : null,
-          ),
+      child: LayoutBuilder(
+        builder: (context, constraints) => SizedBox.square(
+          dimension: min(
+              min(constraints.maxWidth, constraints.maxHeight), _maxBoard),
+          child: _board(boardEnabled),
         ),
       ),
     );
@@ -350,10 +358,34 @@ class _GameScreenState extends State<GameScreen> {
 
   Widget _buildNarrowLayout(BuildContext context, bool boardEnabled) {
     final theme = Theme.of(context);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // The controls need roughly 400px of height. The board gets the rest
+        // but never drops below 240px: on very short screens the column
+        // scrolls instead of shrinking the board to nothing.
+        final boardSize = min(
+          min(constraints.maxWidth - 48,
+              max(constraints.maxHeight - 400, 240.0)),
+          _maxBoard,
+        );
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Center(
+              child: _buildNarrowColumn(theme, boardSize, boardEnabled),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildNarrowColumn(
+      ThemeData theme, double boardSize, bool boardEnabled) {
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           SegmentedButton<bool>(
             segments: const [
@@ -388,7 +420,7 @@ class _GameScreenState extends State<GameScreen> {
           const SizedBox(height: 8),
           _buildStatus(context, theme),
           const SizedBox(height: 16),
-          _buildBoard(boardEnabled),
+          SizedBox.square(dimension: boardSize, child: _board(boardEnabled)),
           const SizedBox(height: 16),
           FilledButton(onPressed: _reset, child: const Text('New Game')),
           if (_canHint) ...[
@@ -414,7 +446,6 @@ class _GameScreenState extends State<GameScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SizedBox(width: sidebarWidth),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(32),
@@ -570,7 +601,10 @@ class _GameScreenState extends State<GameScreen> {
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  if (constraints.maxWidth >= 600) {
+                  // Sidebar only when there is room for it beside a decent
+                  // board: wide and landscape.
+                  if (constraints.maxWidth >= 720 &&
+                      constraints.maxWidth > constraints.maxHeight) {
                     return _buildWideLayout(context, boardEnabled);
                   }
                   return _buildNarrowLayout(context, boardEnabled);
