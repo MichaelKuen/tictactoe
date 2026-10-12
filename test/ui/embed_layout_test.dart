@@ -9,6 +9,7 @@ import 'package:tictactoe/ui/board_widget.dart';
 import 'package:tictactoe/ui/game_screen.dart';
 import 'package:tictactoe/ui/kofi_button.dart';
 import 'package:tictactoe/ui/session_bar_widget.dart';
+import 'package:tictactoe/ui/web_theme.dart';
 
 // The web build runs GameScreen in embed mode inside an iframe on
 // appversegames.com. These tests drive embed mode on the VM.
@@ -37,7 +38,9 @@ Future<void> _pumpEmbed(WidgetTester tester, Size size,
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
   await tester.pumpWidget(MaterialApp(
-    theme: theme ?? ThemeData.light(),
+    theme: theme ?? webLightTheme,
+    darkTheme: webDarkTheme,
+    themeMode: themeNotifier.value,
     home: const GameScreen(embedMode: true),
   ));
   await tester.pumpAndSettle();
