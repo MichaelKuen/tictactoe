@@ -1,12 +1,12 @@
 {
-    "name": "tictactoe",
-    "short_name": "tictactoe",
+    "name": "Tic Tac Toe",
+    "short_name": "Tic Tac Toe",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
-    "orientation": "portrait-primary",
+    "background_color": "#F6F3EC",
+    "theme_color": "#F6F3EC",
+    "description": "Play Tic Tac Toe against an unbeatable AI on three difficulty levels, or against a friend on the same device.",
+    "orientation": "any",
     "prefer_related_applications": false,
     "icons": [
         {
