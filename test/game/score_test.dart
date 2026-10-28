@@ -1,4 +1,4 @@
-// Copyright © FullStackShack. All rights reserved.
+// Copyright © App Verse Games. All rights reserved.
 // Unauthorised use, reproduction, or distribution is strictly prohibited.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tictactoe/game/score.dart';

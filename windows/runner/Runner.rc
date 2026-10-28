@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.fullstackshack" "\0"
-            VALUE "FileDescription", "tictactoe" "\0"
+            VALUE "CompanyName", "App Verse Games" "\0"
+            VALUE "FileDescription", "Tic Tac Toe" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "tictactoe" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 FullStackShack. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 App Verse Games. All rights reserved." "\0"
             VALUE "OriginalFilename", "tictactoe.exe" "\0"
-            VALUE "ProductName", "tictactoe" "\0"
+            VALUE "ProductName", "Tic Tac Toe" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

@@ -1,4 +1,4 @@
-package com.fullstackshack.tictactoe
+package com.appversegames.tictactoe
 
 import io.flutter.embedding.android.FlutterActivity
 

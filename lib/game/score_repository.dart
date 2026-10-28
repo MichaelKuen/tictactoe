@@ -1,4 +1,4 @@
-// Copyright © FullStackShack. All rights reserved.
+// Copyright © App Verse Games. All rights reserved.
 // Unauthorised use, reproduction, or distribution is strictly prohibited.
 import 'package:shared_preferences/shared_preferences.dart';
 import 'score.dart';

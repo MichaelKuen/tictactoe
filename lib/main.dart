@@ -1,4 +1,4 @@
-// Copyright © FullStackShack. All rights reserved.
+// Copyright © App Verse Games. All rights reserved.
 // Unauthorised use, reproduction, or distribution is strictly prohibited.
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
