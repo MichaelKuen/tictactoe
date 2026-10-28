@@ -92,6 +92,7 @@ class _WatchPageState extends State<WatchPage> {
   // Tighter when stacked under the board, so it stays big.
   static const stackedControlsHeight = 112.0;
   static const stackedCommentHeight = 100.0;
+  static const maxCommentHeight = 150.0;
   static const minLogHeight = 44.0;
 
   @override
@@ -289,6 +290,10 @@ class _WatchPageState extends State<WatchPage> {
         maxBoard,
       ),
     );
+    // Height left over after the board goes to the comment first, so its
+    // text stays readable on phones, then to the move log.
+    final comment = (h - board - stackedControlsHeight - minLogHeight - 18)
+        .clamp(stackedCommentHeight, maxCommentHeight);
     final column = max(board, min(w - 16, 320.0));
     return Column(
       children: [
@@ -299,7 +304,7 @@ class _WatchPageState extends State<WatchPage> {
           height: stackedControlsHeight,
           child: FittedBox(fit: BoxFit.scaleDown, child: _controls(context)),
         ),
-        _comment(context, column, stackedCommentHeight),
+        _comment(context, column, comment),
         const SizedBox(height: 6),
         Expanded(
           child: SizedBox(width: column, child: _log(context)),
