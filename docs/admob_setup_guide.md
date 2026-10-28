@@ -32,17 +32,10 @@ IDs before publishing the app. Complete every step in order.
 
 ---
 
-## Step 3 — Create the three ad units
+## Step 3 — Create the two ad units
 
-Still inside your Android app in AdMob:
-
-### 3a — Banner
-
-1. Click **Ad units → Add ad unit**.
-2. Select **Banner**.
-3. Name it `tictactoe-banner-android`.
-4. Leave all other settings as default and click **Create ad unit**.
-5. Copy the **Ad unit ID** (format `ca-app-pub-XXXX/XXXXXXXXXX`).
+Still inside your Android app in AdMob. (Before the App Verse Games update the game also had a
+banner; it no longer shows one, so no banner unit is needed.)
 
 ### 3b — Interstitial
 
@@ -77,44 +70,30 @@ Open `android/app/src/main/AndroidManifest.xml` and replace the test App ID:
     android:value="ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX"/>
 ```
 
-### 4b — Ad unit IDs in `lib/ads/ad_manager.dart`
+### 4b — Ad unit IDs in `lib/main.dart`
 
-Replace the three test unit IDs for Android:
-
-```dart
-// BEFORE
-static String get _interstitialId =>
-    defaultTargetPlatform == TargetPlatform.android
-        ? 'ca-app-pub-3940256099942544/1033173712'   // ← test
-        : 'ca-app-pub-3940256099942544/4411468910';  // ← test (iOS)
-
-static String get _rewardedId =>
-    defaultTargetPlatform == TargetPlatform.android
-        ? 'ca-app-pub-3940256099942544/5224354917'   // ← test
-        : 'ca-app-pub-3940256099942544/1712485313';  // ← test (iOS)
-
-// AFTER — paste your real Android IDs; leave iOS placeholders for Step 6
-static String get _interstitialId =>
-    defaultTargetPlatform == TargetPlatform.android
-        ? 'ca-app-pub-XXXX/XXXXXXXXXX'   // your real Android interstitial
-        : 'ca-app-pub-3940256099942544/4411468910';
-
-static String get _rewardedId =>
-    defaultTargetPlatform == TargetPlatform.android
-        ? 'ca-app-pub-XXXX/XXXXXXXXXX'   // your real Android rewarded
-        : 'ca-app-pub-3940256099942544/1712485313';
-```
-
-### 4c — Banner ID in `lib/ui/game_screen.dart`
+Since the App Verse Games update, ads run through `appverse_core_kit` (`kit.ads`). The game
+only shows **interstitials** (between some games) and a **rewarded** video for a hint; there
+is no banner any more. Pass your real IDs to the game's `CoreKitConfig`:
 
 ```dart
-// BEFORE
-static const String _bannerAdUnitId =
-    'ca-app-pub-3940256099942544/6300978111';   // test
+// BEFORE: the core kit's Google test IDs (AdUnitIds.test) are the default
+const ticTacToeConfig = CoreKitConfig(
+  gameId: 'tictactoe',
+  gameName: 'Tic Tac Toe',
+);
 
 // AFTER
-static const String _bannerAdUnitId =
-    'ca-app-pub-XXXX/XXXXXXXXXX';   // your real Android banner
+const ticTacToeConfig = CoreKitConfig(
+  gameId: 'tictactoe',
+  gameName: 'Tic Tac Toe',
+  adUnitIds: AdUnitIds(
+    androidInterstitial: 'ca-app-pub-XXXX/XXXXXXXXXX',
+    androidRewarded: 'ca-app-pub-XXXX/XXXXXXXXXX',
+    iosInterstitial: 'ca-app-pub-3940256099942544/4411468910', // test until Step 5
+    iosRewarded: 'ca-app-pub-3940256099942544/1712485313', // test until Step 5
+  ),
+);
 ```
 
 ---
@@ -127,22 +106,21 @@ Repeat Step 2 selecting **iOS** as the platform. AdMob gives you a separate iOS 
 
 ### 5b — Create iOS ad units
 
-Repeat Step 3 for iOS. Name them `tictactoe-banner-ios`, etc. Copy the three iOS unit IDs.
+Repeat Step 3 for iOS. Name them `tictactoe-interstitial-ios` and `tictactoe-rewarded-ios`. Copy the two iOS unit IDs.
 
-### 5c — Add the iOS App ID to `ios/Runner/Info.plist`
+### 5c — Replace the iOS App ID in `ios/Runner/Info.plist`
 
-Open `ios/Runner/Info.plist` and add inside the root `<dict>`:
+`ios/Runner/Info.plist` already has Google's test App ID. Replace it with yours:
 
 ```xml
 <key>GADApplicationIdentifier</key>
 <string>ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX</string>
 ```
 
-### 5d — Update iOS unit IDs in `lib/ads/ad_manager.dart`
+### 5d — Update iOS unit IDs in `lib/main.dart`
 
-Replace the iOS sides of `_interstitialId` and `_rewardedId` with your real iOS unit IDs,
-and update the iOS banner in `game_screen.dart` (currently the same constant is used for
-both platforms — split into two constants if the IDs differ).
+Replace the `iosInterstitial` and `iosRewarded` test IDs in `ticTacToeConfig` with your real
+iOS unit IDs.
 
 ---
 
@@ -158,7 +136,7 @@ both platforms — split into two constants if the IDs differ).
 ## Step 7 — Verify before submitting to the Play Store
 
 - [ ] Real App ID in `AndroidManifest.xml` (not the test one)
-- [ ] Real ad unit IDs in `ad_manager.dart` and `game_screen.dart`
+- [ ] Real ad unit IDs in `ticTacToeConfig` (`lib/main.dart`)
 - [ ] `flutter analyze` — zero issues
 - [ ] `flutter test` — all pass
 - [ ] Tested on a real Android device (ads actually appear)

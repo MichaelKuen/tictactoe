@@ -17,6 +17,54 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   sidebar breakpoint, no left spacer, board up to 560 px with a 240 px minimum, rows/columns
   board with cell-scaled glyphs, light default on web
 
+## [2.0.0] — 2026-10-28 — Milestone 15: App Verse Games standard
+
+### Added
+- Dependency on `appverse_core_kit` (path `../appverse_core_kit`): `CoreKit.init`,
+  `AppverseTheme`, settings screen, ads, sound and Watch and Learn driver
+- New packages: `google_sign_in_android`, `google_sign_in_platform_interface` (Sign in with
+  Google scaffold, Android only), `web` (page visibility), dev `fake_async` (tests);
+  `audioplayers` arrives through the core kit
+- Mobile home page, How to Play page, New Game options dialog, web rules dialog
+- First-move choice: you, the computer, or take turns (whoever starts plays X)
+- Watch and Learn: two computers play with a comment box, "Why:" line, move log, step
+  back/forward and speed; pauses while the web embed is hidden
+- AI move reasons (`AiPlayer.decide` / `explain`) and alpha-beta search
+- Last-move highlight on the board
+- Synthesised sounds (`tool/generate_sounds.py`, `assets/sounds/`)
+- Generated icon and splash logo (`tool/generate_icons.py`), `assets/ASSETS.md`
+- `web/embed.js` (tap-to-play card on touch screens), `lib/services/page_visibility*.dart`
+- `tool/build_web.ps1` writes `build\tictactoe-web.zip`
+- Settings saved under `tictactoe.setup.*`; tests for controller, setup, demo, layout at 12
+  iframe sizes (light, dark, mobile, Watch and Learn), visibility, app flows, keyboard, ads —
+  196 tests total
+
+### Changed
+- Package `com.fullstackshack.tictactoe` → `com.appversegames.tictactoe` (Android, iOS);
+  brand App Verse Games everywhere, including copyright headers and Windows resources
+- Folder layout: `lib/game`, `lib/screens`, `lib/widgets`, `lib/services`
+- Brand colours on every platform; mobile follows the system theme instead of starting dark
+- Ads through `kit.ads`: interstitials use the core kit's policy; the rewarded hint stays on
+  Android
+- Scores moved to `tictactoe.score.*` keys; old `score_*` keys are migrated on first start
+- Ko-fi button, Games Hub and play-time bar restyled in brand colours; Games Hub links to
+  appversegames.com instead of the FullStackShack Play developer page
+- Privacy: short in-app note (mentions web localStorage, sign-in and AdMob) with a link to
+  https://appversegames.com/privacy-policy/
+- `web/index.html` / `manifest.json`: theme-color `#16193A`, title
+  "Tic Tac Toe | App Verse Games"; native splash recoloured to navy
+- `docs/admob_setup_guide.md` updated for core-kit ad IDs; `docs/ui_design_system.md` marked
+  superseded
+
+### Removed
+- `linux/` and `macos/` platform folders
+- Banner ad (the core kit has none), `lib/ads/ad_manager.dart`, `theme_notifier.dart`,
+  `web_theme.dart`, `board_colors.dart`, the two-tab privacy policy screen
+- `touch-action: pan-y` workaround in `web/index.html` (replaced by `embed.js`)
+- `flutter_launcher_icons` dev dependency and `assets/icon/app_icon.png`
+- `TODO.md` (FullStackShack Play checklist; replaced by
+  `appverse-games-play-store-release-prompt.md`)
+
 ## [1.5.0] — 2026-10-12 — Milestone 14: Web Embed for appversegames.com
 
 ### Added

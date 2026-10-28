@@ -10,9 +10,11 @@ Read it in full before taking any action in any session.
 | Field            | Value                          |
 |------------------|-------------------------------|
 | App name         | Tic Tac Toe                   |
-| Package          | com.fullstackshack.tictactoe  |
-| Owner            | FullStackShack                |
-| Platform targets | Android, Web (primary); iOS, macOS, Windows, Linux (secondary) |
+| Package          | com.appversegames.tictactoe   |
+| Owner            | App Verse Games (appversegames.com) |
+| Platform targets | Android (primary), Web, Windows; iOS deferred. No macOS or Linux |
+| Standard         | `D:\Development\appverse-games-master-build-prompt.md` (Part A is the standard) |
+| Shared code      | `../appverse_core_kit` (path dependency; don't change it without asking) |
 | Flutter channel  | stable                        |
 | Min SDK          | Android: flutter.minSdkVersion |
 
@@ -23,7 +25,7 @@ Read it in full before taking any action in any session.
 Every `.dart` file in `lib/` and `test/` must start with these two lines — no blank line before the first import:
 
 ```
-// Copyright © FullStackShack. All rights reserved.
+// Copyright © App Verse Games. All rights reserved.
 // Unauthorised use, reproduction, or distribution is strictly prohibited.
 ```
 
@@ -60,6 +62,7 @@ The `.dart_tool/` directory is generated — do NOT add headers there.
 | 12 | milestone/12-privacy-policy   | In-app privacy policy (Summary + Full Policy)    | ✅ Complete (confirmed 2026-07-01) |
 | 13 | milestone/13-kofi-support     | Ko-fi support button across all platforms        | ✅ Complete (confirmed 2026-07-26) |
 | 14 | milestone/14-web-embed        | Web build for appversegames.com iframe            | ✅ Complete (confirmed 2026-10-12) |
+| 15 | milestone/15-appverse-standard | App Verse Games standard: core kit, rebrand, Watch and Learn, embed.js | 🔄 Awaiting confirmation |
 
 ---
 
@@ -91,9 +94,9 @@ flutter test      # all pass
 
 A Flutter Tic Tac Toe game targeting Android and Web.
 
-**Owner:** FullStackShack  
-**Package:** com.fullstackshack.tictactoe  
-**Flutter:** 3.41.4 | **Dart:** 3.11.1
+**Owner:** App Verse Games  
+**Package:** com.appversegames.tictactoe  
+**Flutter:** 3.47.6 | **Dart:** 3.13.5
 
 ## Getting Started
 
@@ -157,7 +160,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [0.1.0] — YYYY-MM-DD — Milestone 00: Project Setup
 
 ### Added
-- Flutter project scaffold (com.fullstackshack.tictactoe)
+- Flutter project scaffold (com.appversegames.tictactoe)
 - CLAUDE.md, README.md, BUILD_LOG.md, CHANGELOG.md
 - docs/milestone_00_setup.md
 - Copyright headers on all .dart files
@@ -193,18 +196,21 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## AdMob
 
-The app contains Google AdMob integration (milestone 05). All ad unit IDs currently in code
-are **Google test IDs** — they are safe to commit and will never generate real revenue.
+Ads run on Android (and iOS, untested) only, through `appverse_core_kit` (`kit.ads`):
+interstitials between some games and an optional rewarded video for a hint. No banner, and
+no ad SDK on web or Windows. All IDs in the project are **Google test IDs**: the core kit's
+`AdUnitIds.test`, the App ID in `AndroidManifest.xml` and `GADApplicationIdentifier` in
+`ios/Runner/Info.plist`.
 
-Before submitting to the Play Store / App Store, follow the full step-by-step instructions in
+Before submitting to the Play Store / App Store, follow
 **[docs/admob_setup_guide.md](docs/admob_setup_guide.md)** to:
 
 1. Create a real AdMob account and register the app
-2. Create Banner, Interstitial, and Rewarded ad units
-3. Replace test IDs in `lib/ads/ad_manager.dart`, `lib/ui/game_screen.dart`, and
-   `android/app/src/main/AndroidManifest.xml`
-4. Add the iOS App ID to `ios/Runner/Info.plist` (iOS target only)
-5. Set up payment in AdMob
+2. Create Interstitial and Rewarded ad units
+3. Pass the real unit IDs as `adUnitIds` in `ticTacToeConfig` (`lib/main.dart`) and replace the
+   App ID in `android/app/src/main/AndroidManifest.xml`
+4. Replace the iOS App ID in `ios/Runner/Info.plist` (iOS target only)
+5. Set up payment
 
 ---
 
@@ -215,6 +221,9 @@ Before submitting to the Play Store / App Store, follow the full step-by-step in
 - Do not add third-party packages without noting them in `CHANGELOG.md`.
 - Do not remove the copyright header from any `.dart` file.
 - Do not add emoji to code files.
+- Do not change `../appverse_core_kit` or any other game's folder without asking first.
+- Do not use `com.example`, `fullstackshack` or `AppVerse` (no space) anywhere; the brand is
+  **App Verse Games**.
 - Do not replace test ad unit IDs with real IDs without also updating `AndroidManifest.xml`
   and (for iOS) `Info.plist` — mismatched IDs cause ads to silently fail.
 - Do not click your own ads during testing — AdMob will suspend the account.

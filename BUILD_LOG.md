@@ -872,3 +872,154 @@ docs/ui-design-system-web
 
 Docs-only change (`docs/ui_design_system.md`, `CHANGELOG.md`, `BUILD_LOG.md`); no code changed,
 so `flutter analyze` / `flutter test` were not re-run.
+
+
+---
+
+## Milestone 15 — App Verse Games Standard
+
+**Date:** 2026-10-28
+**Branch:** milestone/15-appverse-standard
+**Flutter:** 3.47.6 | **Dart:** 3.13.5
+
+### Phase 1 audit (no files changed)
+
+```
+git fetch
+git status -sb
+## main...origin/main
+
+flutter analyze
+Analyzing tictactoe...
+No issues found! (ran in 2.1s)
+
+flutter test
+00:02 +135: All tests passed!
+
+flutter build web --release --base-href /play/tictactoe/ --no-web-resources-cdn
+Compiling lib\main.dart for the Web...                             26,0s
+√ Built build\web
+55 384 682 bytes   (build\web total, including stale files from earlier builds)
+2 032 535 bytes    (main.dart.js)
+```
+
+### Phase 2
+
+```
+git checkout -b milestone/15-appverse-standard
+Switched to a new branch 'milestone/15-appverse-standard'
+
+flutter test test/game/ai_test.dart        (new Hard timing test, before the refactor)
+00:00 +11: All tests passed!
+```
+
+Commits:
+
+```
+458d71f test(ai): pin hard AI response time before the refactor
+85e719a chore(identity): rebrand to App Verse Games and com.appversegames.tictactoe
+7ffa7d5 refactor: move to appverse_core_kit and the App Verse Games standard
+a80f64e feat(web): embed.js-ready index.html, manifest and build script
+fab7c82 fix(tool): name the tictactoe zip in the build script comment
+1d98a54 feat(icons): generated App Verse Games icon and navy splash
+499a9a6 fix(watch): give spare phone height to the comment box
+```
+
+```
+flutter pub get
+Changed 38 dependencies!
+26 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+```
+
+`flutter pub get` changed `windows/flutter/generated_plugin_registrant.cc` and
+`generated_plugins.cmake` for real (adds `audioplayers_windows`), not just line endings,
+so they were committed.
+
+```
+python tool/generate_sounds.py
+move_x.wav  5 KB
+move_o.wav  5 KB
+win.wav  55 KB
+lose.wav  60 KB
+draw.wav  55 KB
+
+python tool/generate_icons.py   (last lines)
+ios\Runner\Assets.xcassets\AppIcon.appiconset\Icon-App-76x76@2x.png  152px
+ios\Runner\Assets.xcassets\AppIcon.appiconset\Icon-App-83.5x83.5@2x.png  167px
+windows\runner\resources\app_icon.ico  16-256px
+assets\splash\splash_logo.png  1024px
+
+dart run flutter_native_splash:create   (last lines)
+[iOS] Creating  images
+[iOS] Creating dark mode  images
+[iOS] Updating ios/Runner/Info.plist for status bar hidden/visible
+
+✅ Native splash complete.
+
+dart format <only the files written in this milestone>
+Formatted 26 files (15 changed) in 0.07 seconds.
+```
+
+### Builds
+
+```
+.\tool\build_web.ps1
+Compiling lib\main.dart for the Web...                             29,5s
+√ Built build\web
+Built D:\Development\tictactoe\build\tictactoe-web.zip
+Upload: extract its contents into public_html/play/tictactoe/ on the server.
+
+41 925 370 bytes total     (build\web)
+2 239 107 bytes main.dart.js
+14 122 791 bytes zip
+
+flutter build apk --debug
+Running Gradle task 'assembleDebug'...                            123,2s
+√ Built build\app\outputs\flutter-apk\app-debug.apk
+```
+
+### Web checks (§6.10), build\web copied to a scratch play/tictactoe/ and served with python -m http.server
+
+Headless Chrome screenshots of real iframes at 320×568, 600×700 and 1024×700, dark mode
+(seeded `flutter.tictactoe.settings.themeMode`), Watch and Learn at 360×640 and 1024×700
+(seeded `flutter.tictactoe.setup.mode`): all show the whole board and controls with no
+scrolling. The offline run with `--host-resolver-rules="MAP * ~NOTFOUND, EXCLUDE 127.0.0.1"`
+rendered fully. `main.dart.js` contains one `gstatic.com/s/` string (Flutter's font-fallback
+base URL); nothing was fetched from it.
+
+Mock article (embed block in the middle of long text), driven by a DevTools-protocol script:
+
+```
+PASS  Play card shown, no game loaded yet
+PASS  the article scrolls (card is below the fold)  (scrollY 839)
+PASS  Play opens the full-screen layer
+PASS  page scrolling locked while open
+PASS  game loaded inside the layer
+PASS  Close returns to the article
+PASS  same scroll position after Close  (839 vs 839)
+PASS  card now reads Continue  (▶ Continue Tic Tac Toe)
+PASS  game told it is hidden  (["hide"])
+PASS  page scrolling unlocked
+PASS  Continue reopens the same game
+PASS  game told it is shown again  (["hide","show"])
+PASS  browser Back closes the game
+PASS  same scroll position after Back  (839 vs 839)
+PASS  Escape closes the game
+```
+
+`flutter test --platform chrome` was not run (it has hung on this machine before).
+
+```
+flutter build windows --debug
+Building Windows application...                                    58,7s
+√ Built build\windows\x64\runner\Debug\tictactoe.exe
+```
+
+### Final flutter analyze / flutter test
+
+```
+Analyzing tictactoe...
+No issues found! (ran in 3.5s)
+00:03 +196: All tests passed!
+```
