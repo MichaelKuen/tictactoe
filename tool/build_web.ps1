@@ -4,7 +4,7 @@
   Usage (from the project folder, in PowerShell):
     .\tool\build_web.ps1
 
-  Output: build\surakarta-web.zip  ->  extract into public_html/play/surakarta/ on the server.
+  Output: build\tictactoe-web.zip  ->  extract into public_html/play/tictactoe/ on the server.
   Run it from PowerShell, not Git Bash: Git Bash rewrites "/play/..." into a Windows path.
 #>
 $ErrorActionPreference = "Stop"
