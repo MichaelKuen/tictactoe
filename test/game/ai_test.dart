@@ -100,4 +100,12 @@ void main() {
       expect(AiPlayer.move(board, Player.o, Difficulty.hard), -1);
     });
   });
+
+  group('speed', () {
+    test('hard answers an empty board well under a second', () {
+      final watch = Stopwatch()..start();
+      AiPlayer.move(Board.empty(), Player.x, Difficulty.hard);
+      expect(watch.elapsedMilliseconds, lessThan(250));
+    });
+  });
 }
