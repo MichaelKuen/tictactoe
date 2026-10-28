@@ -1,5 +1,11 @@
 # FullStackShack UI Design System
 
+> **Superseded (2026-10-28, milestone 15).** Tic Tac Toe now follows the App Verse Games
+> standard in `D:\Development\appverse-games-master-build-prompt.md`: brand colours and themes
+> come from `appverse_core_kit` (`AppverseColors`, `AppverseTheme`), and the FullStackShack
+> colours, `themeNotifier`, `web_theme.dart` and `BoardColors` described below no longer exist.
+> Kept as history only.
+
 This document captures the exact UI conventions used in the FullStackShack Tic Tac Toe app
 (`com.fullstackshack.tictactoe`). Paste this prompt at the start of any new FullStackShack
 game app session to apply consistent UI across the suite. Where a feature doesn't exist in

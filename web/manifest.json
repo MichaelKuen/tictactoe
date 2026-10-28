@@ -1,11 +1,11 @@
 {
-    "name": "Tic Tac Toe",
+    "name": "Tic Tac Toe | App Verse Games",
     "short_name": "Tic Tac Toe",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#F6F3EC",
-    "theme_color": "#F6F3EC",
-    "description": "Play Tic Tac Toe against an unbeatable AI on three difficulty levels, or against a friend on the same device.",
+    "theme_color": "#16193A",
+    "description": "Tic Tac Toe by App Verse Games: play the computer or a friend, or watch and learn.",
     "orientation": "any",
     "prefer_related_applications": false,
     "icons": [

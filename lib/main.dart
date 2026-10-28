@@ -1,62 +1,66 @@
-// Copyright © FullStackShack. All rights reserved.
+// Copyright © App Verse Games. All rights reserved.
 // Unauthorised use, reproduction, or distribution is strictly prohibited.
-import 'package:flutter/foundation.dart';
+import 'package:appverse_core_kit/appverse_core_kit.dart';
 import 'package:flutter/material.dart';
-import 'ads/ad_manager.dart';
-import 'theme_notifier.dart';
-import 'ui/game_screen.dart';
-import 'ui/web_theme.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await AdManager.instance.initialize();
-  runApp(const TicTacToeApp());
+import 'game/game_setup.dart';
+import 'game/session_timer.dart';
+import 'screens/game_host.dart';
+import 'screens/game_page.dart';
+import 'screens/home_page.dart';
+import 'services/google_identity.dart';
+
+const ticTacToeConfig = CoreKitConfig(
+  gameId: 'tictactoe',
+  gameName: 'Tic Tac Toe',
+);
+
+// Portfolio Pass: this game will be an App in the shared App Verse Games
+// RevenueCat project (not created yet), using the `portfolio_pass`
+// entitlement. Optional Sign in with Google gives purchases a stable player
+// ID across games; the core kit only offers it in the Android/iOS app.
+Future<void> main() async {
+  final kit = await CoreKit.init(
+    ticTacToeConfig,
+    identity: GoogleIdentityService.new,
+  );
+  final setup = await GameSetup.load();
+  // The play-time reminder is for the apps; the website has its own pages.
+  final timer = isWebBuild ? null : (SessionTimer()..start());
+  runApp(TicTacToeApp(kit: kit, setup: setup, sessionTimer: timer));
 }
 
 class TicTacToeApp extends StatelessWidget {
-  const TicTacToeApp({super.key});
+  const TicTacToeApp({
+    super.key,
+    required this.kit,
+    this.setup = const GameSetup(),
+    this.sessionTimer,
+  });
+
+  final CoreKit kit;
+
+  /// The last-used mode, levels and first-move choice.
+  final GameSetup setup;
+  final SessionTimer? sessionTimer;
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<ThemeMode>(
-      valueListenable: themeNotifier,
-      builder: (context, mode, child) => MaterialApp(
-        title: 'Tic Tac Toe',
+    return ListenableBuilder(
+      listenable: kit.settings,
+      builder: (context, _) => MaterialApp(
+        title: 'Tic Tac Toe | App Verse Games',
         debugShowCheckedModeBanner: false,
-        themeMode: mode,
-        shortcuts: kIsWeb ? GameScreen.embedShortcuts : null,
-        theme: kIsWeb ? webLightTheme : _lightTheme,
-        darkTheme: kIsWeb ? webDarkTheme : _darkTheme,
-        home: const GameScreen(),
+        theme: AppverseTheme.light(),
+        darkTheme: AppverseTheme.dark(),
+        themeMode: kit.settings.themeMode,
+        shortcuts: GamePage.shortcuts,
+        // On web the page around the iframe already shows the title and
+        // rules, so the game opens straight into play.
+        home: isWebBuild
+            ? GameHost(kit: kit, setup: setup)
+            : HomePage(kit: kit, sessionTimer: sessionTimer),
       ),
     );
   }
 }
-
-final _lightTheme = ThemeData(
-  colorScheme: ColorScheme.light(
-    primary: const Color(0xFFD32F2F),
-    onPrimary: Colors.white,
-    secondary: const Color(0xFF1565C0),
-    onSecondary: Colors.white,
-    surface: const Color(0xFFF5F5F5),
-    onSurface: const Color(0xFF1A1A1A),
-    outline: const Color(0xFFBDBDBD),
-    inversePrimary: const Color(0xFFEEEEEE),
-  ),
-  useMaterial3: true,
-);
-
-final _darkTheme = ThemeData(
-  colorScheme: ColorScheme.dark(
-    primary: const Color(0xFFFF5252),
-    onPrimary: Colors.white,
-    secondary: const Color(0xFF40C4FF),
-    onSecondary: const Color(0xFF002233),
-    surface: const Color(0xFF1A1A2E),
-    onSurface: const Color(0xFFE0E0E0),
-    outline: const Color(0xFF5A5A7A),
-    inversePrimary: const Color(0xFF2A2A4A),
-  ),
-  useMaterial3: true,
-);

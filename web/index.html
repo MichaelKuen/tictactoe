@@ -10,19 +10,19 @@
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Play Tic Tac Toe against an unbeatable AI on three difficulty levels, or against a friend on the same device.">
-  <meta name="theme-color" content="#F6F3EC">
+  <meta name="description" content="Play Tic Tac Toe free against the computer on Easy, Medium or Hard, with a friend on the same device, or watch two computers play and explain every move. By App Verse Games.">
+  <meta name="theme-color" content="#16193A">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Tic Tac Toe">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>Tic Tac Toe</title>
+  <title>Tic Tac Toe | App Verse Games</title>
   <link rel="manifest" href="manifest.json">
 
   <style>
@@ -30,14 +30,6 @@
       margin: 0;
       height: 100%;
       background: #F6F3EC;
-    }
-    /*
-      Flutter sets touch-action: none, which swallows every swipe that starts
-      on the game. The game has no drag gestures, so let vertical swipes
-      scroll the page around the iframe; taps still reach the game.
-    */
-    html, body, flutter-view, flt-glass-pane {
-      touch-action: pan-y !important;
     }
     #loading {
       position: fixed;
@@ -67,6 +59,7 @@
   </style>
 </head>
 <body>
+  <!-- Shown until the game starts; removed by flutter_bootstrap.js. -->
   <div id="loading" role="status" aria-live="polite">
     <div class="spinner"></div>
     <div>Loading Tic Tac Toe…</div>
