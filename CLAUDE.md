@@ -62,7 +62,7 @@ The `.dart_tool/` directory is generated — do NOT add headers there.
 | 12 | milestone/12-privacy-policy   | In-app privacy policy (Summary + Full Policy)    | ✅ Complete (confirmed 2026-07-01) |
 | 13 | milestone/13-kofi-support     | Ko-fi support button across all platforms        | ✅ Complete (confirmed 2026-07-26) |
 | 14 | milestone/14-web-embed        | Web build for appversegames.com iframe            | ✅ Complete (confirmed 2026-10-12) |
-| 15 | milestone/15-appverse-standard | App Verse Games standard: core kit, rebrand, Watch and Learn, embed.js | 🔄 Awaiting confirmation |
+| 15 | milestone/15-appverse-standard | App Verse Games standard: core kit, rebrand, Watch and Learn, embed.js | ✅ Complete (confirmed 2026-10-28) |
 
 ---
 
